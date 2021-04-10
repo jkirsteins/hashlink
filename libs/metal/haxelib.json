@@ -1,0 +1,10 @@
+{
+	"name" : "hlmetal",
+	"url" : "https://github.com/HaxeFoundation/hl/tree/master/libs/metal",
+	"license" : "BSD",
+	"contributors" : ["jkirsteins"],
+	"description" : "Apple Metal support for Haxe/HL.",
+	"version" : "0.0.1",
+	"releasenote" : "",
+	"dependencies": { "hlopenal" : "" }
+}

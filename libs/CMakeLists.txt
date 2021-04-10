@@ -35,6 +35,11 @@ if(WITH_SDL)
     add_subdirectory(sdl)
 endif()
 
+option(WITH_METAL "Build metal.hdll." ON)
+if(WITH_METAL)
+    add_subdirectory(metal)
+endif()
+
 option(WITH_SQLITE "Build sqlite.hdll." ON)
 if(WITH_SQLITE)
     add_subdirectory(sqlite)
