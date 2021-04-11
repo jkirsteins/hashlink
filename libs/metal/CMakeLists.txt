@@ -1,6 +1,9 @@
 add_library(metal.hdll SHARED
-    metal.c
+    MetalApplication.m
 )
+
+set_target_properties(metal.hdll PROPERTIES LINKER_LANGUAGE OBJC)
+
 set_as_hdll(metal)
 target_include_directories(metal.hdll
     PRIVATE
@@ -26,6 +29,8 @@ if(APPLE)
     endmacro(ADD_OSX_FRAMEWORK)
 
     ADD_OSX_FRAMEWORK(Metal metal.hdll)
+    ADD_OSX_FRAMEWORK(MetalKit metal.hdll)
+    ADD_OSX_FRAMEWORK(Cocoa metal.hdll)
 endif()
 
 
