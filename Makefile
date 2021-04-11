@@ -7,7 +7,7 @@ INSTALL_BIN_DIR ?= $(PREFIX)/bin
 INSTALL_LIB_DIR ?= $(PREFIX)/lib
 INSTALL_INCLUDE_DIR ?= $(PREFIX)/include
 
-LIBS=fmt sdl ssl openal ui uv mysql
+LIBS=fmt sdl ssl openal ui uv mysql metal
 
 CFLAGS = -Wall -O3 -I src -msse2 -mfpmath=sse -std=c11 -I include -I include/pcre -I include/mikktspace -I include/minimp3 -D LIBHL_EXPORTS
 LFLAGS = -L. -lhl
@@ -34,6 +34,8 @@ HL = src/code.o src/jit.o src/main.o src/module.o src/debugger.o src/profile.o
 FMT = libs/fmt/fmt.o libs/fmt/sha1.o include/mikktspace/mikktspace.o libs/fmt/mikkt.o libs/fmt/dxt.o
 
 SDL = libs/sdl/sdl.o libs/sdl/gl.o
+
+METAL = libs/metal/MetalApplication.o
 
 OPENAL = libs/openal/openal.o
 
@@ -145,6 +147,9 @@ fmt: ${FMT} libhl
 sdl: ${SDL} libhl
 	${CC} ${CFLAGS} -shared -o sdl.hdll ${SDL} ${LIBFLAGS} -L. -lhl -lSDL2 $(LIBOPENGL)
 
+metal: ${METAL} libhl
+	${CC} ${CFLAGS} -shared -framework Cocoa -framework Metal -framework MetalKit -fobjc-arc -o metal.hdll ${METAL} ${LIBFLAGS} -L. -lhl
+
 openal: ${OPENAL} libhl
 	${CC} ${CFLAGS} -shared -o openal.hdll ${OPENAL} ${LIBFLAGS} -L. -lhl $(LIBOPENAL)
 
@@ -175,6 +180,7 @@ release_version:
 release_haxelib:
 	make HLIB=directx release_haxelib_package
 	make HLIB=sdl release_haxelib_package
+	make HLIB=metal release_haxelib_package
 	make HLIB=openal release_haxelib_package
 
 ifeq ($(HLIB),directx)
@@ -224,9 +230,9 @@ codesign_osx:
 	${CC} ${CFLAGS} -o $@ -c $<
 
 clean_o:
-	rm -f ${STD} ${BOOT} ${RUNTIME} ${PCRE} ${HL} ${FMT} ${SDL} ${SSL} ${OPENAL} ${UI} ${UV} ${HL_DEBUG}
+	rm -f ${STD} ${BOOT} ${RUNTIME} ${PCRE} ${HL} ${FMT} ${SDL} ${METAL} ${SSL} ${OPENAL} ${UI} ${UV} ${HL_DEBUG}
 
 clean: clean_o
 	rm -f hl hl.exe libhl.$(LIBEXT) *.hdll
 
-.PHONY: libhl hl hlc fmt sdl libs release
+.PHONY: libhl hl hlc fmt sdl metal libs release
