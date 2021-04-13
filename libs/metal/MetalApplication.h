@@ -80,3 +80,6 @@ typedef struct {
 - (BOOL)eventLoop:(event_data*)event;
 
 @end
+
+extern MetalApplication *applicationObject;
+

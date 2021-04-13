@@ -35,7 +35,7 @@ FMT = libs/fmt/fmt.o libs/fmt/sha1.o include/mikktspace/mikktspace.o libs/fmt/mi
 
 SDL = libs/sdl/sdl.o libs/sdl/gl.o
 
-METAL = libs/metal/MetalApplication.o
+METAL = libs/metal/MetalApplication.o libs/metal/MetalDriver.o libs/metal/MetalWindow.o libs/metal/MetalView.o
 
 OPENAL = libs/openal/openal.o
 

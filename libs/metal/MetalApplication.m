@@ -16,33 +16,10 @@
 
 #include <hl.h>
 #import "MetalApplication.h"
+#import "MetalWindow.h"
+#import "MetalView.h"
 
 #include <Appkit/AppKit.h>
-
-@interface MetalWindow : NSWindow
-{
-}
-
-@end
-
-@implementation MetalWindow
-
-- (BOOL)canBecomeMainWindow {
-    NSLog(@"Can become main?");
-    return YES;
-}
-
-- (BOOL)canBecomeKeyWindow {
-    NSLog(@"Can become key?");
-    return YES;
-}
-
-- (void)close {
-    NSLog(@"Closed");
-    [super close];
-}
-
-@end
 
 @interface AppDelegate : NSObject<NSApplicationDelegate>
 {
@@ -54,14 +31,11 @@
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication
 {
-	NSLog(@"Last window closed");
 	return TRUE;
 }
 
 -(void)applicationWillFinishLaunching:(NSNotification *)aNotification
 {
-	NSLog(@"Will finish launching");
-
 	// menu
 	id menubar = [NSMenu new];
 	id appMenuItem = [NSMenuItem new];
@@ -91,13 +65,13 @@
 
 -(void)applicationDidBecomeActive:(NSNotification *)notification
 {
-	NSLog(@"Did become active (delegate)");
+
 }
 
 @end
 
 
-static MetalApplication *applicationObject = nil;
+MetalApplication *applicationObject = nil;
 static BOOL finishedLaunching = false;
 
 
@@ -107,20 +81,9 @@ HL_PRIM bool HL_NAME(nsapp_init)() {
 			return false;
 		}
 
-		// NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
 		applicationObject = [MetalApplication sharedApplication];
 
-		if (NSApplication.sharedApplication.class == MetalApplication.class) {
-			NSLog(@"Is good member");
-		} else {
-			NSLog(@"Is bad member");
-		}
-
 		applicationObject.delegate = [[AppDelegate alloc] init];
-
-
-		// [pool release];
 
 		NSLog(@"Initialized");
 		return true;
@@ -138,47 +101,8 @@ HL_PRIM bool HL_NAME(nsapp_event_loop)(event_data *event) {
 	}
 }
 
-HL_PRIM bool HL_NAME(create_metal_window)(vbyte *title, int width, int height) {
-	@autoreleasepool {
-		if (applicationObject == nil) {
-			NSLog(@"Can not create a window. Application is not initialized.");
-			return false;
-		}
-
-		NSLog(@"Creating window %d x %d (%s)", width, height, (char*)title);
-
-		// Window.
-		NSRect frame = NSMakeRect(0, 0, width, height);
-        MetalWindow* window = [[MetalWindow alloc]
-								initWithContentRect:frame styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable
-								backing:NSBackingStoreBuffered defer:NO];
-		[window cascadeTopLeftFromPoint:NSMakePoint(20,20)];
-		window.title = [NSString stringWithUTF8String:(char*)title];
-		[window makeKeyAndOrderFront:nil];
-
-//        [window setLevel:NSMainMenuWindowLevel + 1];
-        
-        [window center];
-        
-
-		// Custom MTKView.
-		MTKView* view = [[MTKView alloc] initWithFrame:frame];
-		window.contentView = view;
-        [window setInitialFirstResponder:view];
-
-		NSLog(@"Making window key and front");
-		[window makeKeyAndOrderFront:nil];
-
-
-
-
-		return true;
-	}
-}
-
 DEFINE_PRIM(_BOOL,nsapp_event_loop,_DYN );
 DEFINE_PRIM(_BOOL,nsapp_init,_NO_ARG);
-DEFINE_PRIM(_BOOL,create_metal_window,_BYTES _I32 _I32);
 
 @implementation MetalApplication
 
@@ -209,13 +133,13 @@ DEFINE_PRIM(_BOOL,create_metal_window,_BYTES _I32 _I32);
 		while (true) {
 			// NSLog(@"Waiting for the next event...");
 			// NSLog(@"(window count: %lu)", NSApp.windows.count);
-            
+
             if (NSApp.windows.count == 0) {
                 event->type = Quit;
                 NSLog(@"Returning Quit");
                 return true;
             }
-            
+
 			NSEvent *event =
 				[self
 					nextEventMatchingMask:NSEventMaskAny

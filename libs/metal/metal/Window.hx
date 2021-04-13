@@ -2,7 +2,7 @@ package metal;
 
 import haxe.Exception;
 
-// private typedef WinPtr = hl.Abstract<"sdl_window">;
+private typedef WinPtr = hl.Abstract<"metal_window">;
 // private typedef GLContext = hl.Abstract<"sdl_gl">;
 
 @:enum abstract DisplayMode(Int) {
@@ -15,8 +15,10 @@ import haxe.Exception;
 	var FullscreenResize = 3;
 }
 
-@:hlNative("metal")
+@:hlNative("metal", "window_")
 class Window {
+
+	var win : WinPtr;
 
 	public var title(default, set) : String;
 	public var vsync(default, set) : Bool;
@@ -26,31 +28,24 @@ class Window {
 
 	public function new(title : String, width : Int, height : Int) {
 
-		// while( true ) {
-		// 	win = winCreateEx(x, y, width, height, sdlFlags);
-		// 	if( win == null ) throw "Failed to create window";
-		// 	glctx = winGetGLContext(win);
-		// 	if( glctx == null || !GL.init() || !testGL() ) {
-		// 		destroy();
-		// 		if( Sdl.onGlContextRetry() ) continue;
-		// 		Sdl.onGlContextError();
-		// 	}
-		// 	break;
-		// }
 		this.title = title;
 		this.width = width;
 		this.height = height;
 
-		if (!@:privateAccess createMetalWindow(title.toUtf8(), width, height)) {
-			throw new Exception("Failed to create a Metal window.");
-		}
+		this.win = @:privateAccess nativeCreate(title.toUtf8(), width, height);
 
+		nativeTest(this.win);
 		// windows.push(this);
 		// vsync = true;
 	}
 
-	public static function createMetalWindow(title: hl.Bytes, width: Int, height: Int): Bool {
-		return false;
+	@:hlNative("metal", "window_create")
+	public static function nativeCreate(title: hl.Bytes, width: Int, height: Int): WinPtr {
+		return null;
+	}
+
+	@:hlNative("metal", "window_test")
+	public static function nativeTest(win: WinPtr) {
 	}
 
 	function set_width(w: Int) {
