@@ -18,6 +18,16 @@ class Driver {
 
     public function createIndexBuffer(size: Int): Buffer
     {
+        return createBuffer(size);
+    }
+
+    public function createVertexBuffer(size: Int): Buffer
+    {
+        return createBuffer(size);
+    }
+
+    public function createBuffer(size: Int): Buffer
+    {
         return @:privateAccess new Buffer(Driver.nativeCreateBuffer( driver, size ));
     }
 
@@ -37,8 +47,17 @@ class Driver {
         nativeResizeViewport(driver, width, height);
     }
 
+    public function setDepthStencilFormat( format: PixelFormat ) {
+        nativeSetDepthStencilFormat( driver, format );
+    }
+
     @:hlNative("metal","driver_resize_viewport")
     static function nativeResizeViewport( driver: DriverInstance, w: Int, h: Int ) {
+
+    }
+
+    @:hlNative("metal","driver_set_depth_stencil_format")
+    static function nativeSetDepthStencilFormat( driver: DriverInstance, format: PixelFormat ) {
 
     }
 

@@ -104,10 +104,25 @@ HL_PRIM void HL_NAME(driver_update_buffer)(
     }
 }
 
+HL_PRIM void HL_NAME(driver_set_depth_stencil_format)(MetalDriver* driver, mtl_pixel_format pixelFormat) {
+    @autoreleasepool {
+        switch (pixelFormat) {
+            case Depth32Float_Stencil8:
+                NSLog(@"Setting depth stencil pixel format: MTLPixelFormatDepth32Float_Stencil8");
+                driver.metalView.depthStencilPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
+                break;
+            default:
+                NSLog(@"Invalid pixel format %d", pixelFormat);
+                exit(1);
+        }
+    }
+}
+
 DEFINE_PRIM(_DRIVER,driver_create,_WINPTR);
 DEFINE_PRIM(_METAL_BUFFER,driver_create_buffer,_DRIVER _I32);
 DEFINE_PRIM(_VOID,driver_update_buffer,_METAL_BUFFER _BYTES _I32 _I32);
 DEFINE_PRIM(_VOID,driver_resize_viewport,_DRIVER _I32 _I32);
+DEFINE_PRIM(_VOID,driver_set_depth_stencil_format,_DRIVER _I32);
 
 @implementation MetalDriver
 {
