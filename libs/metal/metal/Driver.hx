@@ -47,8 +47,18 @@ class Driver {
         nativeResizeViewport(driver, width, height);
     }
 
-    public function setDepthStencilFormat( format: PixelFormat ) {
+    public function setDepthStencilFormat( format: MTLPixelFormat ) {
         nativeSetDepthStencilFormat( driver, format );
+    }
+
+    public function createTexture( descriptor: Proxy_MTLTextureDescriptor ): MTLTexture {
+        trace('creating texture with pxfmt ${descriptor.pixelFormat}');
+        return nativeCreateTexture( driver, descriptor );
+    }
+
+    @:hlNative("metal","driver_create_texture")
+    static function nativeCreateTexture( driver: DriverInstance, descriptor: Dynamic ): MTLTexture {
+        return null;
     }
 
     @:hlNative("metal","driver_resize_viewport")
@@ -57,7 +67,7 @@ class Driver {
     }
 
     @:hlNative("metal","driver_set_depth_stencil_format")
-    static function nativeSetDepthStencilFormat( driver: DriverInstance, format: PixelFormat ) {
+    static function nativeSetDepthStencilFormat( driver: DriverInstance, format: MTLPixelFormat ) {
 
     }
 

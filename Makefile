@@ -10,7 +10,8 @@ INSTALL_INCLUDE_DIR ?= $(PREFIX)/include
 LIBS=fmt sdl ssl openal ui uv mysql metal
 
 CFLAGS = -Wall -O3 -I src -msse2 -mfpmath=sse -std=c11 -I include -I include/pcre -I include/mikktspace -I include/minimp3 -D LIBHL_EXPORTS
-LFLAGS = -L. -lhl
+CXXFLAGS = -Wall -O3 -I src -msse2 -mfpmath=sse -std=c++11 -I include -I include/pcre -I include/mikktspace -I include/minimp3 -D LIBHL_EXPORTS
+LFLAGS = -L. -lhl -lstdc++
 EXTRA_LFLAGS ?=
 LIBFLAGS =
 HLFLAGS = -ldl
@@ -68,7 +69,7 @@ else ifeq ($(UNAME),Darwin)
 
 # Mac
 LIBEXT=dylib
-CFLAGS += -m$(MARCH) -I /usr/local/include -I /usr/local/opt/libjpeg-turbo/include -I /usr/local/opt/jpeg-turbo/include -I /usr/local/opt/sdl2/include/SDL2 -I /usr/local/opt/libvorbis/include -I /usr/local/opt/openal-soft/include -Dopenal_soft  -DGL_SILENCE_DEPRECATION
+CFLAGS += -m$(MARCH) -I /usr/local/include -I /usr/local/opt/libjpeg-turbo/include -I /usr/local/opt/jpeg-turbo/include -I /usr/local/opt/sdl2/include/SDL2 -I /usr/local/opt/libvorbis/include -I /usr/local/opt/openal-soft/include -Dopenal_soft  -DGL_SILENCE_DEPRECATION -lstdc++
 LFLAGS += -Wl,-export_dynamic -L/usr/local/lib
 
 ifdef OSX_SDK
@@ -148,6 +149,7 @@ sdl: ${SDL} libhl
 	${CC} ${CFLAGS} -shared -o sdl.hdll ${SDL} ${LIBFLAGS} -L. -lhl -lSDL2 $(LIBOPENGL)
 
 metal: ${METAL} libhl
+	echo $(which ${CC})
 	${CC} ${CFLAGS} -shared -framework Cocoa -framework Metal -framework MetalKit -fobjc-arc -o metal.hdll ${METAL} ${LIBFLAGS} -L. -lhl
 
 openal: ${OPENAL} libhl
@@ -192,7 +194,7 @@ endif
 release_haxelib_package:
 	rm -rf $(HLIB)_release
 	mkdir $(HLIB)_release
-	(cd libs/$(HLIB) && cp -R $(HLPACK) *.h *.c* haxelib.json ../../$(HLIB)_release | true)
+	(cd libs/$(HLIB) && cp -R $(HLPACK) *.h *.m* *.c* haxelib.json ../../$(HLIB)_release | true)
 	zip -r $(HLIB).zip $(HLIB)_release
 	haxelib submit $(HLIB).zip
 	rm -rf $(HLIB)_release
@@ -228,6 +230,9 @@ codesign_osx:
 
 .c.o :
 	${CC} ${CFLAGS} -o $@ -c $<
+
+libs/metal/MetalDriver.o: libs/metal/MetalDriver.mm
+	${CC} ${CXXFLAGS} -o $@ -c libs/metal/MetalDriver.mm
 
 clean_o:
 	rm -f ${STD} ${BOOT} ${RUNTIME} ${PCRE} ${HL} ${FMT} ${SDL} ${METAL} ${SSL} ${OPENAL} ${UI} ${UV} ${HL_DEBUG}

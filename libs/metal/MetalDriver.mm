@@ -9,11 +9,33 @@
 #include <Appkit/AppKit.h>
 #include <simd/simd.h>
 
-
 #define _DRIVER _ABSTRACT(metal_driver)
 #define _METAL_BUFFER _ABSTRACT(id_mtl_buffer)
+#define _METAL_TEXTURE _ABSTRACT(id_mtl_texture)
 
-char *defaultSource = "#include <simd/simd.h>\n"
+typedef struct Proxy_MTLTextureDescriptor {
+public:
+    hl_type *t;
+    int32_t width;
+    int32_t height;
+    int32_t depth;
+
+    int32_t textureType;
+    int32_t pixelFormat;
+
+//    public var mipmapLevelCount: Int;
+//    public var sampleCount: Int;
+//    public var arrayLength: Int;
+//    public var resourceOptions: MTLResourceOptions;
+//    public var cpuCacheMode: MTLCPUCacheMode;
+//    public var storageMode: MTLStorageMode;
+//    public var hazardTrackingMode: MTLHazardTrackingMode;
+//    public var allowGPUOptimizedContents: Bool;
+//    public var usage: MTLTextureUsage;
+//    public var swizzle: MTLTextureSwizzleChannels;
+} Proxy_MTLTextureDescriptor;
+
+char const *defaultSource = "#include <simd/simd.h>\n"
 "\n"
 "#ifndef COMMON_H\n"
 "#define COMMON_H\n"
@@ -97,17 +119,17 @@ HL_PRIM void HL_NAME(driver_update_buffer)(
             NSLog(@"Not updating buffer %@ because size is <0 (%d)", buffer, size);
             return;
         }
-        
+
         NSLog(@"Updating buffer %@ offset %d size %d", buffer, offset, size);
-        
-        memcpy(buffer.contents + offset, data, size);
+
+        memcpy((char*)buffer.contents + offset, data, size);
     }
 }
 
-HL_PRIM void HL_NAME(driver_set_depth_stencil_format)(MetalDriver* driver, mtl_pixel_format pixelFormat) {
+HL_PRIM void HL_NAME(driver_set_depth_stencil_format)(MetalDriver* driver, int32_t pixelFormat) {
     @autoreleasepool {
-        switch (pixelFormat) {
-            case Depth32Float_Stencil8:
+        switch ((MTLPixelFormat)pixelFormat) {
+            case MTLPixelFormatDepth32Float_Stencil8:
                 NSLog(@"Setting depth stencil pixel format: MTLPixelFormatDepth32Float_Stencil8");
                 driver.metalView.depthStencilPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
                 break;
@@ -118,23 +140,43 @@ HL_PRIM void HL_NAME(driver_set_depth_stencil_format)(MetalDriver* driver, mtl_p
     }
 }
 
+HL_PRIM id<MTLTexture> HL_NAME(driver_create_texture)(MetalDriver* driver, Proxy_MTLTextureDescriptor *proxyDescriptor) {
+    @autoreleasepool {
+        NSLog(@"Creating a texture");
+        NSLog(@"Texture descriptor: %d x %d (%d) (%lu)",
+              proxyDescriptor->width,
+              proxyDescriptor->height,
+              proxyDescriptor->pixelFormat,
+              ((MTLPixelFormat)proxyDescriptor->pixelFormat));
+        
+        MTLTextureDescriptor *textureDescriptor = [MTLTextureDescriptor new];
+        
+        textureDescriptor.pixelFormat = (MTLPixelFormat)proxyDescriptor->pixelFormat;
+        textureDescriptor.width = proxyDescriptor->width;
+        textureDescriptor.height = proxyDescriptor->height;
+        
+        return [driver.device newTextureWithDescriptor:textureDescriptor];
+    }
+}
+
 DEFINE_PRIM(_DRIVER,driver_create,_WINPTR);
 DEFINE_PRIM(_METAL_BUFFER,driver_create_buffer,_DRIVER _I32);
 DEFINE_PRIM(_VOID,driver_update_buffer,_METAL_BUFFER _BYTES _I32 _I32);
 DEFINE_PRIM(_VOID,driver_resize_viewport,_DRIVER _I32 _I32);
 DEFINE_PRIM(_VOID,driver_set_depth_stencil_format,_DRIVER _I32);
+DEFINE_PRIM(_METAL_TEXTURE,driver_create_texture,_DRIVER _DYN);
 
 @implementation MetalDriver
 {
     MetalWindow *_window;
     CGSize _size;
     id <MTLCommandQueue> _commandQueue;
-    
+
     id <MTLLibrary> _library;
     id <MTLRenderPipelineState> _pipelineState;
     id <MTLDepthStencilState> _depthState;
     dispatch_semaphore_t _semaphore;
-    
+
 }
 
 enum VertexAttributes {
@@ -146,7 +188,7 @@ enum BufferIndex  {
     MeshVertexBuffer = 0,
     FrameUniformBuffer = 1,
 };
-
+ 
 //struct FrameUniforms {
 //    simd::float4x4 projectionViewModel;
 //};
@@ -157,9 +199,6 @@ typedef struct {
     unsigned char color[4];
 } Vertex;
 
-// For pipeline executing.
-const int uniformBufferCount = 3;
-
 #define member_size(type, member) sizeof(((type *)0)->member)
 
 - (id)initWithWindow:(MetalWindow*)window {
@@ -169,18 +208,18 @@ const int uniformBufferCount = 3;
     if (self) {
         NSLog(@"In self");
         self->_window = window;
-        
+
         self->_size = window.frame.size;
         NSLog(@"Driver size: %f %f", self->_size.width, self->_size.height);
-        
+
         NSLog(@"Driver device: %@", self.device);
-        
+
         self->_commandQueue = [self.device newCommandQueue];
-        
+
         _semaphore = dispatch_semaphore_create(1);
 
         NSError *error = nil;
-        
+
         NSString *source = [NSString stringWithCString:defaultSource encoding:NSUTF8StringEncoding];
         NSLog(@"Metal library source: %@", source);
         _library = [self.device newLibraryWithSource:source options:0 error:&error];
@@ -190,13 +229,13 @@ const int uniformBufferCount = 3;
         }
         id <MTLFunction> vertFunc = [_library newFunctionWithName:@"vert"];
         id <MTLFunction> fragFunc = [_library newFunctionWithName:@"frag"];
-        
+
         // Create depth state.
         MTLDepthStencilDescriptor *depthDesc = [MTLDepthStencilDescriptor new];
         depthDesc.depthCompareFunction = MTLCompareFunctionLess;
         depthDesc.depthWriteEnabled = YES;
         _depthState = [self.device newDepthStencilStateWithDescriptor:depthDesc];
-        
+
         // Create vertex descriptor.
         MTLVertexDescriptor *vertDesc = [MTLVertexDescriptor new];
         vertDesc.attributes[VertexAttributePosition].format = MTLVertexFormatFloat3;
@@ -208,7 +247,7 @@ const int uniformBufferCount = 3;
         vertDesc.layouts[MeshVertexBuffer].stride = sizeof(Vertex);
         vertDesc.layouts[MeshVertexBuffer].stepRate = 1;
         vertDesc.layouts[MeshVertexBuffer].stepFunction = MTLVertexStepFunctionPerVertex;
-        
+
         MTLRenderPipelineDescriptor *pipelineDesc = [MTLRenderPipelineDescriptor new];
         pipelineDesc.sampleCount = self.sampleCount;
         pipelineDesc.vertexFunction = vertFunc;
@@ -217,9 +256,9 @@ const int uniformBufferCount = 3;
         pipelineDesc.colorAttachments[0].pixelFormat = self.metalView.colorPixelFormat;
         pipelineDesc.depthAttachmentPixelFormat = self.metalView.depthStencilPixelFormat;
         pipelineDesc.stencilAttachmentPixelFormat = self.metalView.depthStencilPixelFormat;
-    
+
         _pipelineState = [self.device newRenderPipelineStateWithDescriptor:pipelineDesc error:&error];
-        
+
         if (!_pipelineState) {
             NSLog(@"Failed to create pipeline state, error %@", error);
             exit(0);
@@ -255,9 +294,9 @@ const int uniformBufferCount = 3;
     // Encode render command.
     id <MTLRenderCommandEncoder> encoder =
         [commandBuffer renderCommandEncoderWithDescriptor:self.metalView.currentRenderPassDescriptor];
-    
+
 //    [[MTLViewport alloc] init (0, 0, self->_size.width, self->_size.height, 0, 1)
-    
+
     MTLViewport x;
     x.originX = 0;
     x.originY = 0;
