@@ -53,11 +53,11 @@ class Driver {
 
     public function createTexture( descriptor: Proxy_MTLTextureDescriptor ): MTLTexture {
         trace('creating texture with pxfmt ${descriptor.pixelFormat}');
-        return nativeCreateTexture( driver, descriptor );
+        return new MTLTexture(nativeCreateTexture( driver, descriptor ));
     }
 
     @:hlNative("metal","driver_create_texture")
-    static function nativeCreateTexture( driver: DriverInstance, descriptor: Dynamic ): MTLTexture {
+    static function nativeCreateTexture( driver: DriverInstance, descriptor: Dynamic ): MTLTexturePtr {
         return null;
     }
 
