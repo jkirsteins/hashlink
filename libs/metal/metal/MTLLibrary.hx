@@ -1,7 +1,5 @@
 package metal;
 
-import metal.NSInteger;
-import metal.NSUInteger;
 import haxe.Int64;
 
 @:allow(metal.Driver)
