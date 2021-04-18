@@ -11,9 +11,11 @@ typedef DriverInstance = hl.Abstract<"metal_driver">;
 class Driver {
 
     var driver: DriverInstance;
+    public var device(default, null): metal.MTLDevice;
 
     public function new( win : Window ) {
         driver = nativeCreate( @:privateAccess win.win );
+        device = new MTLDevice( nativeGetDevice(driver) );
     }
 
     public function createIndexBuffer(size: Int): Buffer
@@ -58,6 +60,11 @@ class Driver {
 
     @:hlNative("metal","driver_create_texture")
     static function nativeCreateTexture( driver: DriverInstance, descriptor: Dynamic ): MTLTexturePtr {
+        return null;
+    }
+
+    @:hlNative("metal","driver_get_device")
+    static function nativeGetDevice( driver: DriverInstance ): MTLDevicePtr {
         return null;
     }
 

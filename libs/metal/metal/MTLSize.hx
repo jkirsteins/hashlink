@@ -1,8 +1,9 @@
 package metal;
 
 @:keep
+@:structInit
 class MTLSize {
-    @:NSUInteger var width : Int;
-    @:NSUInteger var height : Int;
-    @:NSUInteger var depth : Int;
+    var width : Int;
+    var height : Int;
+    var depth : Int;
 }

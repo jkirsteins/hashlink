@@ -1,8 +1,9 @@
 package metal;
 
 @:keep
+@:structInit
 class MTLOrigin {
-    @:NSUInteger var x : Int;
-    @:NSUInteger var y : Int;
-    @:NSUInteger var z : Int;
+    var x : Int;
+    var y : Int;
+    var z : Int;
 }
