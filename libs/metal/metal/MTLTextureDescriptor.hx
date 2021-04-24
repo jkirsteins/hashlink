@@ -6,7 +6,7 @@
 package metal;
 
 @:keep
-class Proxy_MTLTextureDescriptor
+class MTLTextureDescriptor
 {
     public function new() {
 

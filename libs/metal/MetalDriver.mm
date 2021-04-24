@@ -13,6 +13,7 @@
 
 #define _DRIVER _ABSTRACT(metal_driver)
 #define _METAL_BUFFER _ABSTRACT(id_mtl_buffer)
+#define _CA_METAL_DRAWABLE _ABSTRACT(id_ca_metal_drawable)
 
 typedef struct Proxy_MTLTextureDescriptor {
 public:
@@ -149,13 +150,13 @@ HL_PRIM id<MTLTexture> HL_NAME(driver_create_texture)(MetalDriver* driver, Proxy
               proxyDescriptor->height,
               proxyDescriptor->pixelFormat,
               ((MTLPixelFormat)proxyDescriptor->pixelFormat));
-        
+
         MTLTextureDescriptor *textureDescriptor = [MTLTextureDescriptor new];
-        
+
         textureDescriptor.pixelFormat = (MTLPixelFormat)proxyDescriptor->pixelFormat;
         textureDescriptor.width = proxyDescriptor->width;
         textureDescriptor.height = proxyDescriptor->height;
-        
+
         return [driver.device newTextureWithDescriptor:textureDescriptor];
     }
 }
@@ -168,6 +169,13 @@ HL_PRIM id<MTLDevice> HL_NAME(driver_get_device)(MetalDriver* driver) {
     }
 }
 
+HL_PRIM id<CAMetalDrawable> HL_NAME(driver_get_current_drawable)(MetalDriver* driver) {
+    @autoreleasepool {
+        NSLog(@"Fetching current drawable");
+        return driver.metalView.currentDrawable;
+    }
+}
+
 DEFINE_PRIM(_DRIVER,driver_create,_WINPTR);
 DEFINE_PRIM(_METAL_BUFFER,driver_create_buffer,_DRIVER _I32);
 DEFINE_PRIM(_VOID,driver_update_buffer,_METAL_BUFFER _BYTES _I32 _I32);
@@ -175,6 +183,7 @@ DEFINE_PRIM(_VOID,driver_resize_viewport,_DRIVER _I32 _I32);
 DEFINE_PRIM(_VOID,driver_set_depth_stencil_format,_DRIVER _I32);
 DEFINE_PRIM(_MTL_TEXTURE,driver_create_texture,_DRIVER _DYN);
 DEFINE_PRIM(_MTL_DEVICE,driver_get_device,_DRIVER);
+DEFINE_PRIM(_CA_METAL_DRAWABLE,driver_get_current_drawable,_DRIVER);
 
 @implementation MetalDriver
 {
@@ -198,7 +207,7 @@ enum BufferIndex  {
     MeshVertexBuffer = 0,
     FrameUniformBuffer = 1,
 };
- 
+
 //struct FrameUniforms {
 //    simd::float4x4 projectionViewModel;
 //};
@@ -268,7 +277,7 @@ typedef struct {
         pipelineDesc.stencilAttachmentPixelFormat = self.metalView.depthStencilPixelFormat;
 
         _pipelineState = [self.device newRenderPipelineStateWithDescriptor:pipelineDesc error:&error];
-        
+
         if (!_pipelineState) {
             NSLog(@"Failed to create pipeline state, error %@", error);
             exit(0);
@@ -306,10 +315,10 @@ typedef struct {
         NSLog(@"No render pass!");
         exit(1);
     }
-    
+
     // TODO: get clear color from outside
     renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(1.0, 0.0, 0.0, 1.0);
-    
+
     // Encode render command.
     id <MTLRenderCommandEncoder> encoder =
         [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];

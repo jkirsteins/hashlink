@@ -53,9 +53,18 @@ class Driver {
         nativeSetDepthStencilFormat( driver, format );
     }
 
-    public function createTexture( descriptor: Proxy_MTLTextureDescriptor ): MTLTexture {
+    public function createTexture( descriptor: MTLTextureDescriptor ): MTLTexture {
         trace('creating texture with pxfmt ${descriptor.pixelFormat}');
         return new MTLTexture(nativeCreateTexture( driver, descriptor ));
+    }
+
+    public function getCurrentDrawable(): CAMetalDrawable {
+        return new CAMetalDrawable( Driver.nativeGetCurrentDrawable( driver ) );
+    }
+
+    @:hlNative("metal","driver_get_current_drawable")
+    static function nativeGetCurrentDrawable( driver: DriverInstance ): CAMetalDrawablePtr {
+        return null;
     }
 
     @:hlNative("metal","driver_create_texture")

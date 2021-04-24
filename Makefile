@@ -36,7 +36,18 @@ FMT = libs/fmt/fmt.o libs/fmt/sha1.o include/mikktspace/mikktspace.o libs/fmt/mi
 
 SDL = libs/sdl/sdl.o libs/sdl/gl.o
 
-METAL = libs/metal/MetalApplication.o libs/metal/MTLLibrary.o libs/metal/MTLDevice.o libs/metal/MetalDriver.o libs/metal/MetalTexture.o libs/metal/MetalWindow.o libs/metal/MetalView.o
+METAL = libs/metal/MetalApplication.o \
+	libs/metal/MTLFunction.o \
+	libs/metal/MTLCommandBuffer.o \
+	libs/metal/MTLCommandQueue.o \
+	libs/metal/MTLDepthStencilState.o \
+	libs/metal/MTLRenderPipelineState.o \
+	libs/metal/MTLLibrary.o \
+	libs/metal/MTLDevice.o \
+	libs/metal/MetalDriver.o \
+	libs/metal/MetalTexture.o \
+	libs/metal/MetalWindow.o \
+	libs/metal/MetalView.o
 
 OPENAL = libs/openal/openal.o
 
