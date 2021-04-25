@@ -44,6 +44,7 @@ METAL = libs/metal/MetalApplication.o \
 	libs/metal/MTLRenderPipelineState.o \
 	libs/metal/MTLLibrary.o \
 	libs/metal/MTLDevice.o \
+	libs/metal/MTLBuffer.o \
 	libs/metal/MetalDriver.o \
 	libs/metal/MetalTexture.o \
 	libs/metal/MetalWindow.o \

@@ -19,6 +19,12 @@ class MTLDevice extends MetalResource<MTLDevicePtr> {
         return new MTLCommandQueue(MTLDevice.nativeNewCommandQueue( ptr ));
     }
 
+    public function newBufferWithLengthOptions( size: Int, options: MTLResourceOptions ): metal.MTLBuffer {
+        var ptr = MTLDevice.nativeNewBufferWithLengthOptions( ptr, size, cast(options, Int) );
+        trace('Created MTLBufferPtr $ptr');
+        return new MTLBuffer( ptr );
+    }
+
     @:hlNative("metal", "mtldevice_newCommandQueue")
     private static function nativeNewCommandQueue(device: MTLDevicePtr): MTLCommandQueuePtr {
         return null;
@@ -34,5 +40,8 @@ class MTLDevice extends MetalResource<MTLDevicePtr> {
         return null;
     }
 
-
+    @:hlNative("metal","mtldevice_newBuffer_length_options")
+	private static function nativeNewBufferWithLengthOptions( device : MTLDevicePtr, size: Int, options: Int ) : metal.MTLBufferPtr {
+        return null;
+    }
 }

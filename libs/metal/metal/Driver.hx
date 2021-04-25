@@ -18,31 +18,19 @@ class Driver {
         device = new MTLDevice( nativeGetDevice(driver) );
     }
 
-    public function createIndexBuffer(size: Int): Buffer
+    @:deprecated public function createIndexBuffer(size: Int): MTLBuffer
     {
         return createBuffer(size);
     }
 
-    public function createVertexBuffer(size: Int): Buffer
+    @:deprecated public function createVertexBuffer(size: Int): MTLBuffer
     {
         return createBuffer(size);
     }
 
-    public function createBuffer(size: Int): Buffer
+    @:deprecated public function createBuffer(size: Int): MTLBuffer
     {
-        return @:privateAccess new Buffer(Driver.nativeCreateBuffer( driver, size ));
-    }
-
-    public function updateBuffer(
-        buffer : metal.Buffer,
-        data: hl.Bytes,
-        offset: Int,
-        size: Int) {
-        nativeUpdateBuffer(
-            @:privateAccess buffer.buffer,
-            data,
-            offset,
-            size);
+        return device.newBufferWithLengthOptions(size, MTLResourceOptions.MTLResourceStorageModeShared);
     }
 
     public function resizeViewport(width: Int, height: Int) {
@@ -90,19 +78,5 @@ class Driver {
     @:hlNative("metal","driver_create")
 	static function nativeCreate( win : hl.Abstract<"metal_window"> ) : DriverInstance {
         return null;
-    }
-
-    @:hlNative("metal","driver_create_buffer")
-	static function nativeCreateBuffer( driver : DriverInstance, size: Int ) : metal.MetalBufferInstance {
-        return null;
-    }
-
-    @:hlNative("metal","driver_update_buffer")
-	static function nativeUpdateBuffer(
-        buffer : metal.MetalBufferInstance,
-        data: hl.Bytes,
-        offset: Int,
-        size: Int) {
-
     }
 }

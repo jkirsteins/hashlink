@@ -5,39 +5,20 @@
 #import "MetalDriver.h"
 #import "MetalWindow.h"
 #import "MetalView.h"
-#import "MetalTexture.h"
-#import "MTLDevice.h"
+#import "MTLBuffer.h"
 
 #include <Appkit/AppKit.h>
 #include <simd/simd.h>
 
 #define _DRIVER _ABSTRACT(metal_driver)
-#define _METAL_BUFFER _ABSTRACT(id_mtl_buffer)
-#define _CA_METAL_DRAWABLE _ABSTRACT(id_ca_metal_drawable)
 
-typedef struct Proxy_MTLTextureDescriptor {
-public:
+template <typename T> class dx_struct {
     hl_type *t;
-    int32_t width;
-    int32_t height;
-    int32_t depth;
+public:
+    T value;
+};
 
-    int32_t textureType;
-    int32_t pixelFormat;
-
-//    public var mipmapLevelCount: Int;
-//    public var sampleCount: Int;
-//    public var arrayLength: Int;
-//    public var resourceOptions: MTLResourceOptions;
-//    public var cpuCacheMode: MTLCPUCacheMode;
-//    public var storageMode: MTLStorageMode;
-//    public var hazardTrackingMode: MTLHazardTrackingMode;
-//    public var allowGPUOptimizedContents: Bool;
-//    public var usage: MTLTextureUsage;
-//    public var swizzle: MTLTextureSwizzleChannels;
-} Proxy_MTLTextureDescriptor;
-
-char const *defaultSource = "#include <simd/simd.h>\n"
+char *defaultSource = "#include <simd/simd.h>\n"
 "\n"
 "#ifndef COMMON_H\n"
 "#define COMMON_H\n"
@@ -89,19 +70,8 @@ char const *defaultSource = "#include <simd/simd.h>\n"
 HL_PRIM MetalDriver* HL_NAME(driver_create)(MetalWindow* win) {
 	@autoreleasepool {
 		NSLog(@"Creating driver");
-        NSLog(@"_MTLResourceStorageModeShared_ %lu", MTLResourceStorageModeShared);
         return [[MetalDriver alloc] initWithWindow:win];
 	}
-}
-
-HL_PRIM id<MTLBuffer> HL_NAME(driver_create_buffer)(MetalDriver* driver, int32_t length) {
-    @autoreleasepool {
-        NSLog(@"Creating buffer");
-
-        id<MTLDevice> dev = driver.device;
-        return [dev newBufferWithLength:(NSUInteger)length
-                                options:0];
-    }
 }
 
 HL_PRIM void HL_NAME(driver_resize_viewport)(MetalDriver* driver, int32_t width, int32_t height) {
@@ -112,10 +82,11 @@ HL_PRIM void HL_NAME(driver_resize_viewport)(MetalDriver* driver, int32_t width,
     }
 }
 
-HL_PRIM void HL_NAME(driver_set_depth_stencil_format)(MetalDriver* driver, int32_t pixelFormat) {
+HL_PRIM void HL_NAME(driver_set_depth_stencil_format)(MetalDriver* driver, mtl_pixel_format pixelFormat) {
     @autoreleasepool {
-        switch ((MTLPixelFormat)pixelFormat) {
-            case MTLPixelFormatDepth32Float_Stencil8:
+        switch (pixelFormat) {
+                MTLTextureDescriptor *x;
+            case Depth32Float_Stencil8:
                 NSLog(@"Setting depth stencil pixel format: MTLPixelFormatDepth32Float_Stencil8");
                 driver.metalView.depthStencilPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
                 break;
@@ -126,47 +97,26 @@ HL_PRIM void HL_NAME(driver_set_depth_stencil_format)(MetalDriver* driver, int32
     }
 }
 
-HL_PRIM id<MTLTexture> HL_NAME(driver_create_texture)(MetalDriver* driver, Proxy_MTLTextureDescriptor *proxyDescriptor) {
+HL_PRIM void HL_NAME(driver_create_texture)(MetalDriver* driver, mtl_texture_descriptor pixelFormat) {
     @autoreleasepool {
-        NSLog(@"Creating a texture");
-        NSLog(@"Texture descriptor: %d x %d (%d) (%lu)",
-              proxyDescriptor->width,
-              proxyDescriptor->height,
-              proxyDescriptor->pixelFormat,
-              ((MTLPixelFormat)proxyDescriptor->pixelFormat));
-
-        MTLTextureDescriptor *textureDescriptor = [MTLTextureDescriptor new];
-
-        textureDescriptor.pixelFormat = (MTLPixelFormat)proxyDescriptor->pixelFormat;
-        textureDescriptor.width = proxyDescriptor->width;
-        textureDescriptor.height = proxyDescriptor->height;
-
-        return [driver.device newTextureWithDescriptor:textureDescriptor];
+        switch (pixelFormat) {
+                MTLTextureDescriptor *x;
+            case Depth32Float_Stencil8:
+                NSLog(@"Setting depth stencil pixel format: MTLPixelFormatDepth32Float_Stencil8");
+                driver.metalView.depthStencilPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
+                break;
+            default:
+                NSLog(@"Invalid pixel format %d", pixelFormat);
+                exit(1);
+        }
     }
 }
 
-
-HL_PRIM id<MTLDevice> HL_NAME(driver_get_device)(MetalDriver* driver) {
-    @autoreleasepool {
-        NSLog(@"Fetching device");
-        return driver.device;
-    }
-}
-
-HL_PRIM id<CAMetalDrawable> HL_NAME(driver_get_current_drawable)(MetalDriver* driver) {
-    @autoreleasepool {
-        NSLog(@"Fetching current drawable");
-        return driver.metalView.currentDrawable;
-    }
-}
+metal@driver_create_texture
 
 DEFINE_PRIM(_DRIVER,driver_create,_WINPTR);
-DEFINE_PRIM(_METAL_BUFFER,driver_create_buffer,_DRIVER _I32);
 DEFINE_PRIM(_VOID,driver_resize_viewport,_DRIVER _I32 _I32);
 DEFINE_PRIM(_VOID,driver_set_depth_stencil_format,_DRIVER _I32);
-DEFINE_PRIM(_MTL_TEXTURE,driver_create_texture,_DRIVER _DYN);
-DEFINE_PRIM(_MTL_DEVICE,driver_get_device,_DRIVER);
-DEFINE_PRIM(_CA_METAL_DRAWABLE,driver_get_current_drawable,_DRIVER);
 
 @implementation MetalDriver
 {
@@ -200,6 +150,9 @@ typedef struct {
     float position[3];
     unsigned char color[4];
 } Vertex;
+
+// For pipeline executing.
+const int uniformBufferCount = 3;
 
 #define member_size(type, member) sizeof(((type *)0)->member)
 
@@ -293,18 +246,9 @@ typedef struct {
     // Create a command buffer.
     id <MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
 
-    MTLRenderPassDescriptor *renderPassDescriptor = self.metalView.currentRenderPassDescriptor;
-    if (renderPassDescriptor == NULL) {
-        NSLog(@"No render pass!");
-        exit(1);
-    }
-
-    // TODO: get clear color from outside
-    renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(1.0, 0.0, 0.0, 1.0);
-
     // Encode render command.
     id <MTLRenderCommandEncoder> encoder =
-        [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+        [commandBuffer renderCommandEncoderWithDescriptor:self.metalView.currentRenderPassDescriptor];
 
 //    [[MTLViewport alloc] init (0, 0, self->_size.width, self->_size.height, 0, 1)
 

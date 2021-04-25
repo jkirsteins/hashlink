@@ -1,6 +1,7 @@
 package metal;
 
-final MTLResourceCPUCacheModeShift = 0;
+final MTLResourceCPUCacheModeShift  = 0;
+final MTLResourceStorageModeShift   = 4;
 
 @:macos(10.11)
 @:ios(8.0)
@@ -10,9 +11,9 @@ final MTLResourceCPUCacheModeShift = 0;
 
     // var MTLResourceCPUCacheModeWriteCombined = MTLCPUCacheModeWriteCombined << MTLResourceCPUCacheModeShift;
 
-    // @:macos(10.11)
-    // @:ios(9.0)
-    // var MTLResourceStorageModeShared = MTLStorageModeShared << MTLResourceStorageModeShift;
+    @:macos(10.11)
+    @:ios(9.0)
+    var MTLResourceStorageModeShared = /*MTLStorageModeShared*/0 << /*MTLResourceStorageModeShift*/4;
 
     // @:macos(10.11)
     // @:macCatalyst(13.0)
