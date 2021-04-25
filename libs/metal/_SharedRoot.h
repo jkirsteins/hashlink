@@ -2,6 +2,7 @@
 #include <hl.h>
 #import <Cocoa/Cocoa.h>
 #import <Metal/Metal.h>
+#import <QuartzCore/QuartzCore.h>
 
 
 #define DEBUG 1

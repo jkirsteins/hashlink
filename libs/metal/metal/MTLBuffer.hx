@@ -4,6 +4,7 @@ import haxe.Int64;
 
 @:allow(metal.Driver)
 @:allow(metal.MTLDevice)
+@:allow(metal.MTLRenderCommandEncoder)
 @:hlNative("metal", "mtlbuffer_")
 class MTLBuffer extends MetalResource<MTLBufferPtr> {
 

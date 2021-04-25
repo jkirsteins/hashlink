@@ -38,7 +38,24 @@ HL_PRIM id<MTLRenderCommandEncoder> HL_NAME(mtlcommandbuffer_renderCommandEncode
     DEBUG_NSLOG(@"Asking %@ to create an encoder", buffer);
     id<MTLRenderCommandEncoder> encoder = [buffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
     DEBUG_NSLOG(@"mtlcommandbuffer_renderCommandEncoder_descriptor: returning encoder %@", encoder);
+    
     return encoder;
+}
+
+HL_PRIM void HL_NAME(mtlcommandbuffer_commit)(id<MTLCommandBuffer> buffer) {
+    DEBUG_NSLOG(@"mtlcommandbuffer_commit: start");
+
+    [buffer commit];
+     
+    DEBUG_NSLOG(@"mtlcommandbuffer_commit: end");
+}
+
+HL_PRIM void HL_NAME(mtlcommandbuffer_presentDrawable)(id<MTLCommandBuffer> buffer, id<CAMetalDrawable> drawable) {
+    DEBUG_NSLOG(@"mtlcommandbuffer_presentDrawable: start");
+
+    [buffer presentDrawable:drawable];
+    
+    DEBUG_NSLOG(@"mtlcommandbuffer_presentDrawable: end");
 }
 
 //HL_PRIM void HL_NAME(mtlcommandbuffer_nativeTest)(/*Proxy_MTLClearColorExtended *ext*/varray *exts) {
@@ -54,4 +71,6 @@ HL_PRIM id<MTLRenderCommandEncoder> HL_NAME(mtlcommandbuffer_renderCommandEncode
 //}
 
 //DEFINE_PRIM(_VOID,mtlcommandbuffer_nativeTest,_ARR);
+DEFINE_PRIM(_VOID,mtlcommandbuffer_presentDrawable,_MTL_COMMAND_BUFFER _CA_METAL_DRAWABLE);
+DEFINE_PRIM(_VOID,mtlcommandbuffer_commit,_MTL_COMMAND_BUFFER);
 DEFINE_PRIM(_MTL_RENDER_COMMAND_ENCODER,mtlcommandbuffer_renderCommandEncoder_descriptor,_MTL_COMMAND_BUFFER _DYN);

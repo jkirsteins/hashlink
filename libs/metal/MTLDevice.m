@@ -1,7 +1,7 @@
 #import "MTLDevice.h"
 #import "MTLLibrary.h"
+#import "MTLRenderPipelineState.h"
 
-#define _MTL_RENDER_PIPELINE_STATE _ABSTRACT(id_mtl_render_pipeline_state)
 #define _MTL_COMMAND_QUEUE _ABSTRACT(id_mtl_command_queue)
 
 typedef struct Proxy_MTLFunction {

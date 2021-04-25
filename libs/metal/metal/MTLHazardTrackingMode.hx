@@ -8,3 +8,4 @@ package metal;
     var MTLHazardTrackingModeUntracked = 1;
     var MTLHazardTrackingModeTracked = 2;
 }
+
