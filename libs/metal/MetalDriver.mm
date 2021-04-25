@@ -7,13 +7,13 @@
 #import "MetalView.h"
 #import "MetalTexture.h"
 #import "MTLDevice.h"
+#import "CAMetalDrawable.h"
 
 #include <Appkit/AppKit.h>
 #include <simd/simd.h>
 
 #define _DRIVER _ABSTRACT(metal_driver)
 #define _METAL_BUFFER _ABSTRACT(id_mtl_buffer)
-#define _CA_METAL_DRAWABLE _ABSTRACT(id_ca_metal_drawable)
 
 typedef struct Proxy_MTLTextureDescriptor {
 public:

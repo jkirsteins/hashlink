@@ -6,7 +6,9 @@ package metal;
 class MTLCommandQueue extends MetalResource<MTLCommandQueuePtr> {
 
     public function commandBuffer(): MTLCommandBuffer {
-        return new MTLCommandBuffer( MTLCommandQueue.nativeCommandBuffer( this.ptr ) );
+        var bufferPtr = MTLCommandQueue.nativeCommandBuffer( this.ptr );
+        var res = new MTLCommandBuffer( bufferPtr );
+        return res;
     }
 
     @:hlNative("metal", "mtlcommandqueue_commandBuffer")

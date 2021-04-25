@@ -11,4 +11,5 @@ class MTLRenderPassAttachmentDescriptor
 {
     public var loadAction: MTLLoadAction;
     public var storeAction: MTLStoreAction;
+    public var texture: MTLTexture;
 }

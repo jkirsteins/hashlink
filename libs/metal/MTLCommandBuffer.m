@@ -1,1 +1,57 @@
 #import "MTLCommandBuffer.h"
+#import "CAMetalDrawable.h"
+#import "MTLRenderCommandEncoder.h"
+
+MTLRenderPassDescriptor* _unwrap_render_pass_descriptor(Proxy_MTLRenderPassDescriptor *descriptor) {
+    MTLRenderPassDescriptor *result = [MTLRenderPassDescriptor new];
+    
+    for (int i = 0; i < descriptor->colorAttachments->size; ++i) {
+        Proxy_MTLRenderPassColorAttachmentDescriptor *colorAttachment = hl_aptr(descriptor->colorAttachments, Proxy_MTLRenderPassColorAttachmentDescriptor*)[i];
+        
+        result.colorAttachments[i].loadAction = (MTLLoadAction)colorAttachment->base.loadAction;
+        DEBUG_NSLOG(@"Setting loadAction[%d] to %d", i, colorAttachment->base.loadAction);
+        
+        result.colorAttachments[i].storeAction = (MTLStoreAction)colorAttachment->base.storeAction;
+        DEBUG_NSLOG(@"Setting storeAction[%d] to %d", i, colorAttachment->base.storeAction);
+        
+        result.colorAttachments[i].clearColor = MTLClearColorMake(
+                                                                  colorAttachment->clearColor->red,
+                                                                  colorAttachment->clearColor->green,
+                                                                  colorAttachment->clearColor->blue,
+                                                                  colorAttachment->clearColor->alpha);
+        DEBUG_NSLOG(@"Setting clearColor[%d] to %f %f %f %f", i, result.colorAttachments[i].clearColor.red, result.colorAttachments[i].clearColor.green, result.colorAttachments[i].clearColor.blue, result.colorAttachments[i].clearColor.alpha);
+        
+        
+        id<MTLTexture> tex = colorAttachment->base.texture->texture;
+        DEBUG_NSLOG(@"Setting render pass descriptor texture: %@", tex);
+        result.colorAttachments[i].texture = tex;
+    }
+     
+    return result;
+}
+
+HL_PRIM id<MTLRenderCommandEncoder> HL_NAME(mtlcommandbuffer_renderCommandEncoder_descriptor)(id<MTLCommandBuffer> buffer, Proxy_MTLRenderPassDescriptor *descriptor) {
+    DEBUG_NSLOG(@"mtlcommandbuffer_renderCommandEncoder_descriptor: begin with %@", buffer);
+
+    MTLRenderPassDescriptor *renderPassDescriptor = _unwrap_render_pass_descriptor(descriptor);
+    DEBUG_NSLOG(@"Unwrapped descriptor %@", renderPassDescriptor);
+    DEBUG_NSLOG(@"Asking %@ to create an encoder", buffer);
+    id<MTLRenderCommandEncoder> encoder = [buffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+    DEBUG_NSLOG(@"mtlcommandbuffer_renderCommandEncoder_descriptor: returning encoder %@", encoder);
+    return encoder;
+}
+
+//HL_PRIM void HL_NAME(mtlcommandbuffer_nativeTest)(/*Proxy_MTLClearColorExtended *ext*/varray *exts) {
+//    @autoreleasepool {
+////        NSLog(@"mtlcommandbuffer_nativeTest");
+////        NSLog(@"array size: %d", exts->size);
+////
+////        for( int i=0; i<exts->size; i++ ){
+////            Proxy_MTLClearColor *ext = hl_aptr(exts, Proxy_MTLClearColor*)[i];
+////            NSLog(@"%f %f %f %f", ext->base.red, ext->base.green, ext->base.blue, ext->alpha);
+////        }
+//    }
+//}
+
+//DEFINE_PRIM(_VOID,mtlcommandbuffer_nativeTest,_ARR);
+DEFINE_PRIM(_MTL_RENDER_COMMAND_ENCODER,mtlcommandbuffer_renderCommandEncoder_descriptor,_MTL_COMMAND_BUFFER _DYN);

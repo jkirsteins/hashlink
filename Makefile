@@ -38,11 +38,13 @@ SDL = libs/sdl/sdl.o libs/sdl/gl.o
 
 METAL = libs/metal/MetalApplication.o \
 	libs/metal/MTLFunction.o \
+	libs/metal/CAMetalDrawable.o \
 	libs/metal/MTLCommandBuffer.o \
 	libs/metal/MTLCommandQueue.o \
 	libs/metal/MTLDepthStencilState.o \
 	libs/metal/MTLRenderPipelineState.o \
 	libs/metal/MTLLibrary.o \
+	libs/metal/MTLRenderCommandEncoder.o \
 	libs/metal/MTLDevice.o \
 	libs/metal/MTLBuffer.o \
 	libs/metal/MetalDriver.o \

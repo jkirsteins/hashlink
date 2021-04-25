@@ -1,26 +1,6 @@
 #import "_SharedRoot.h"
 #import "MetalTexture.h"
 
-typedef struct Proxy_MTLOrigin {
-    hl_type * _;
-    int32_t x;
-    int32_t y;
-    int32_t z;
-} Proxy_MTLOrigin;
-
-typedef struct Proxy_MTLSize {
-    hl_type * _;
-    int32_t width;
-    int32_t height;
-    int32_t depth;
-} Proxy_MTLSize;
-
-typedef struct Proxy_MTLRegion {
-    hl_type * _;
-    Proxy_MTLOrigin *origin;
-    Proxy_MTLSize *size;
-} Proxy_MTLRegion;
-
 void _validate_region(Proxy_MTLRegion *region) {
     if (region == NULL) {
         NSLog(@"region is NULL");

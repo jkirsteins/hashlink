@@ -9,7 +9,7 @@ package metal;
 @:keep
 class MTLRenderPassDescriptor
 {
-    public var colorAttachments: Array<MTLRenderPassColorAttachmentDescriptor> = [];
+    public var colorAttachments = new hl.NativeArray<MTLRenderPassColorAttachmentDescriptor>(0);
 
     public function new() {
 

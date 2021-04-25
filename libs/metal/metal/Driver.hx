@@ -47,7 +47,11 @@ class Driver {
     }
 
     public function getCurrentDrawable(): CAMetalDrawable {
-        return new CAMetalDrawable( Driver.nativeGetCurrentDrawable( driver ) );
+        var drawablePtr = Driver.nativeGetCurrentDrawable( driver );
+        if (drawablePtr == null) {
+            return null;
+        }
+        return new CAMetalDrawable( drawablePtr );
     }
 
     @:hlNative("metal","driver_get_current_drawable")

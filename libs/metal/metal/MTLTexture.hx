@@ -3,6 +3,7 @@ package metal;
 import haxe.Int64;
 
 @:allow(metal.Driver)
+@:allow(metal.CAMetalDrawable)
 @:hlNative("metal", "mtltexture_")
 class MTLTexture {
     var ptr : MTLTexturePtr;
