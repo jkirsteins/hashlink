@@ -60,11 +60,20 @@ HL_PRIM MetalWindow* HL_NAME(window_create)(vbyte *title, int width, int height)
 }
 
 HL_PRIM void HL_NAME(window_test)(MetalWindow* win) {
-	@autoreleasepool {
-		NSLog(@"Window pointer test");
+    @autoreleasepool {
+        NSLog(@"Window pointer test");
         [win testForHaxe];
-	}
+    }
+}
+
+HL_PRIM void HL_NAME(window_draw)(MetalWindow* win) {
+    @autoreleasepool {
+        NSLog(@"window_draw: begin");
+        [((MetalView*)[win contentView]) draw];
+        NSLog(@"window_draw: end");
+    }
 }
 
 DEFINE_PRIM(_WINPTR,window_create,_BYTES _I32 _I32);
 DEFINE_PRIM(_VOID,window_test,_WINPTR);
+DEFINE_PRIM(_VOID,window_draw,_WINPTR);

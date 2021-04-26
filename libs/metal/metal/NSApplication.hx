@@ -16,6 +16,7 @@ class NSApplication {
 		while( true ) {
 			if( !eventLoop(event) )
 				break;
+			trace('Got true from eventLoop');
 			var ret = onEvent(event);
 			if( event.type == Quit && ret ) {
                 trace("Got Quit event");

@@ -48,6 +48,10 @@ class Window {
 	public static function nativeTest(win: WinPtr) {
 	}
 
+	@:hlNative("metal", "window_draw")
+	public static function nativeDraw(win: WinPtr) {
+	}
+
 	function set_width(w: Int) {
 		return width = w;
 	}
@@ -87,5 +91,9 @@ class Window {
 
 	public function present() {
 		// trace('[metal.Window#present] Not implemented');
+	}
+
+	public function macDraw() {
+		nativeDraw( this.win );
 	}
 }

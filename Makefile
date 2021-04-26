@@ -37,6 +37,7 @@ FMT = libs/fmt/fmt.o libs/fmt/sha1.o include/mikktspace/mikktspace.o libs/fmt/mi
 SDL = libs/sdl/sdl.o libs/sdl/gl.o
 
 METAL = libs/metal/MetalApplication.o \
+	libs/metal/NSObject.o \
 	libs/metal/MTLFunction.o \
 	libs/metal/CAMetalDrawable.o \
 	libs/metal/MTLCommandBuffer.o \

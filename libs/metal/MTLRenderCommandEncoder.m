@@ -58,6 +58,16 @@ HL_PRIM void HL_NAME(mtlrendercommandencoder_endEncoding)(id<MTLRenderCommandEnc
     DEBUG_NSLOG(@"metal@mtlrendercommandencoder_endEncoding: end");
 }
 
+HL_PRIM void HL_NAME(mtlrendercommandencoder_release)(id<MTLRenderCommandEncoder> rce) {
+    DEBUG_NSLOG(@"mtlrendercommandencoder_release: start with %@", rce);
+    
+    [rce release];
+
+    DEBUG_NSLOG(@"mtlrendercommandencoder_release: end");
+}
+
+DEFINE_PRIM(_VOID,mtlrendercommandencoder_release,_MTL_RENDER_COMMAND_ENCODER);
+
 DEFINE_PRIM(_VOID,mtlrendercommandencoder_endEncoding,_MTL_RENDER_COMMAND_ENCODER);
 DEFINE_PRIM(
             _VOID,

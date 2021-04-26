@@ -13,6 +13,14 @@ class MTLCommandBuffer extends MetalResource<MTLCommandBufferPtr> {
         MTLCommandBuffer.nativeCommit( ptr );
     }
 
+    @:hlNative("metal", "mtlcommandbuffer_release")
+    private static function nativeRelease( ptr: MTLCommandBufferPtr ) {
+    }
+
+    public function release() {
+        nativeRelease( ptr );
+    }
+
     public function presentDrawable(drawable: CAMetalDrawable) {
         MTLCommandBuffer.nativePresentDrawable(
             ptr,

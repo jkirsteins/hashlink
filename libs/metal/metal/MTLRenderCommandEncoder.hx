@@ -50,6 +50,14 @@ class MTLRenderCommandEncoder extends MetalResource<MTLRenderCommandEncoderPtr> 
         MTLRenderCommandEncoder.nativeEndEncoding( ptr );
     }
 
+    public function release() {
+        nativeRelease( ptr );
+    }
+
+    @:hlNative("metal", "mtlrendercommandencoder_release")
+    private static function nativeRelease( ptr: MTLRenderCommandEncoderPtr ) {
+    }
+
     @:hlNative("metal", "mtlrendercommandencoder_endEncoding")
     private static function nativeEndEncoding( encoder: MTLRenderCommandEncoderPtr )
     {

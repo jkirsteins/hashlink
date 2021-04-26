@@ -131,36 +131,43 @@ DEFINE_PRIM(_BOOL,nsapp_init,_NO_ARG);
 			*/
 
 		while (true) {
-			// NSLog(@"Waiting for the next event...");
+			 NSLog(@"Waiting for the next event...");
 			// NSLog(@"(window count: %lu)", NSApp.windows.count);
 
             if (NSApp.windows.count == 0) {
                 event->type = Quit;
-                NSLog(@"Returning Quit");
+                NSLog(@"Returning Quit because no more windows");
                 return true;
             }
 
-			NSEvent *event =
+			NSEvent *nsEvent =
 				[self
 					nextEventMatchingMask:NSEventMaskAny
-					untilDate:[NSDate distantFuture]
+					untilDate:[NSDate distantPast]
 					inMode:NSDefaultRunLoopMode
 					dequeue:YES];
+            if (nsEvent == nil) {
+                break;
+            }
+            
+            NSLog(@"Returning an event...");
+            event->type = 1337; // tmp to not force a quit
 
 			long subtype = -1;
 			if(
-				[event type] == NSEventTypeAppKitDefined ||
-				[event type] == NSEventTypeSystemDefined ||
-				[event type] == NSEventTypeApplicationDefined ||
-				[event type] == NSEventTypePeriodic ) {
+				[nsEvent type] == NSEventTypeAppKitDefined ||
+				[nsEvent type] == NSEventTypeSystemDefined ||
+				[nsEvent type] == NSEventTypeApplicationDefined ||
+				[nsEvent type] == NSEventTypePeriodic ) {
 
-				subtype = [event subtype];
+				subtype = [nsEvent subtype];
 			}
 
 			// NSLog(@"NSEvent with type: %ld and subtype: %ld", event.type, subtype);
 
-			[self sendEvent:event];
+			[self sendEvent:nsEvent];
 			[self updateWindows];
+            return true;
 		}
 
 		return false;

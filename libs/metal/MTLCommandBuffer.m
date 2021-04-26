@@ -70,6 +70,16 @@ HL_PRIM void HL_NAME(mtlcommandbuffer_presentDrawable)(id<MTLCommandBuffer> buff
 //    }
 //}
 
+HL_PRIM void HL_NAME(mtlcommandbuffer_release)(id<MTLCommandBuffer> cb) {
+    DEBUG_NSLOG(@"mtlcommandbuffer_release: start with %@", cb);
+    
+    [cb release];
+
+    DEBUG_NSLOG(@"mtlcommandbuffer_release: end");
+}
+
+DEFINE_PRIM(_VOID,mtlcommandbuffer_release,_MTL_COMMAND_BUFFER);
+
 //DEFINE_PRIM(_VOID,mtlcommandbuffer_nativeTest,_ARR);
 DEFINE_PRIM(_VOID,mtlcommandbuffer_presentDrawable,_MTL_COMMAND_BUFFER _CA_METAL_DRAWABLE);
 DEFINE_PRIM(_VOID,mtlcommandbuffer_commit,_MTL_COMMAND_BUFFER);
