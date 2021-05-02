@@ -19,6 +19,16 @@ class MTLBuffer extends MetalResource<MTLBufferPtr> {
             size);
     }
 
+    public function getLength() {
+        return nativeGetLength(ptr);
+    }
+
+    @:hlNative("metal","mtlbuffer_length")
+	static function nativeGetLength(
+        buffer : MTLBufferPtr): Int {
+            return 0;
+    }
+
     @:hlNative("metal","mtlbuffer_contents_memcpy")
 	static function nativeContentsMemcpy(
         buffer : MTLBufferPtr,

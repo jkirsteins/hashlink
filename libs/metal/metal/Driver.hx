@@ -42,7 +42,6 @@ class Driver {
     }
 
     public function createTexture( descriptor: MTLTextureDescriptor ): MTLTexture {
-        trace('creating texture with pxfmt ${descriptor.pixelFormat}');
         return new MTLTexture(nativeCreateTexture( driver, descriptor ));
     }
 

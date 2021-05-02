@@ -26,7 +26,22 @@ MTLRenderPassDescriptor* _unwrap_render_pass_descriptor(Proxy_MTLRenderPassDescr
         DEBUG_NSLOG(@"Setting render pass descriptor texture: %@", tex);
         result.colorAttachments[i].texture = tex;
     }
+    
+    result.depthAttachment.loadAction = descriptor->depthAttachment->base.loadAction;
+    result.depthAttachment.storeAction = descriptor->depthAttachment->base.storeAction;
+    result.depthAttachment.clearDepth = descriptor->depthAttachment->clearDepth;
+    DEBUG_NSLOG(@"Setting depth store to %lu", (unsigned long)result.depthAttachment.storeAction);
+    DEBUG_NSLOG(@"Setting depth load to %lu", (unsigned long)result.depthAttachment.loadAction);
+    DEBUG_NSLOG(@"Setting depth clear to %f", result.depthAttachment.clearDepth);
      
+    result.stencilAttachment.loadAction = descriptor->stencilAttachment->base.loadAction;
+    result.stencilAttachment.storeAction = descriptor->stencilAttachment->base.storeAction;
+    result.stencilAttachment.clearStencil = descriptor->stencilAttachment->clearStencil;
+    DEBUG_NSLOG(@"Setting stencil store to %lu", (unsigned long)result.stencilAttachment.storeAction);
+    DEBUG_NSLOG(@"Setting stencil load to %lu", (unsigned long)result.stencilAttachment.loadAction);
+    DEBUG_NSLOG(@"Setting stencil clear to %d", result.stencilAttachment.clearStencil);
+    
+    
     return result;
 }
 

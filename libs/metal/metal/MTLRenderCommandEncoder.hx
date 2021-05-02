@@ -8,6 +8,7 @@ class MTLRenderCommandEncoder extends MetalResource<MTLRenderCommandEncoderPtr> 
 
     public function setVertexBufferWithOffsetAtIndex(buffer: MTLBuffer, offset: Int, index: Int)
     {
+        trace('Setting vertex buffer at index $index');
         MTLRenderCommandEncoder.nativeSetVertexBufferWithOffsetAtIndex(
             ptr,
             @:privateAccess buffer.ptr,

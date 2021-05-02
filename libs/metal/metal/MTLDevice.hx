@@ -20,8 +20,14 @@ class MTLDevice extends MetalResource<MTLDevicePtr> {
     }
 
     public function newBufferWithLengthOptions( size: Int, options: MTLResourceOptions ): metal.MTLBuffer {
+        if (size == 0) {
+            throw 'Can not create a buffer with size 0';
+        }
+
         var ptr = MTLDevice.nativeNewBufferWithLengthOptions( ptr, size, cast(options, Int) );
-        trace('Created MTLBufferPtr $ptr');
+        if (ptr == null) {
+            throw 'Failed to create a buffer (got NULL)';
+        }
         return new MTLBuffer( ptr );
     }
 

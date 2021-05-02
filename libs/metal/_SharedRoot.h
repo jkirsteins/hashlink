@@ -14,6 +14,7 @@
 #else
 
 #define DEBUG_NSLOG(...) ;
+#define DEBUG_NSLOG2(...) ;
 
 #endif
 
@@ -66,7 +67,19 @@ typedef struct Proxy_MTLRenderPassColorAttachmentDescriptor {
     Proxy_MTLClearColor *clearColor;
 } Proxy_MTLRenderPassColorAttachmentDescriptor;
 
-typedef struct Proxy_MTLRenderPassDescriptor {
+typedef struct Proxy_MTLRenderPassDepthAttachmentDescriptor {
+    Proxy_MTLRenderPassAttachmentDescriptor base;
+    Float64 clearDepth;
+} Proxy_MTLRenderPassDepthAttachmentDescriptor;
+
+typedef struct Proxy_MTLRenderPassStencilAttachmentDescriptor {
+    Proxy_MTLRenderPassAttachmentDescriptor base;
+    int32_t clearStencil;
+} Proxy_MTLRenderPassStencilAttachmentDescriptor;
+
+typedef struct  Proxy_MTLRenderPassDescriptor {
     hl_type *t;
     varray *colorAttachments;
+    Proxy_MTLRenderPassDepthAttachmentDescriptor *depthAttachment;
+    Proxy_MTLRenderPassStencilAttachmentDescriptor *stencilAttachment;
 } Proxy_MTLRenderPassDescriptor;

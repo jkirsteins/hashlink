@@ -220,51 +220,52 @@ typedef struct {
 
         _semaphore = dispatch_semaphore_create(1);
 
-        NSError *error = nil;
-
-        NSString *source = [NSString stringWithCString:defaultSource encoding:NSUTF8StringEncoding];
-        NSLog(@"Metal library source: %@", source);
-        _library = [self.device newLibraryWithSource:source options:0 error:&error];
-        if (!_library) {
-            NSLog(@"Failed to load library. error %@", error);
-            exit(0);
-        }
-        id <MTLFunction> vertFunc = [_library newFunctionWithName:@"vert"];
-        id <MTLFunction> fragFunc = [_library newFunctionWithName:@"frag"];
-
-        // Create depth state.
-        MTLDepthStencilDescriptor *depthDesc = [MTLDepthStencilDescriptor new];
-        depthDesc.depthCompareFunction = MTLCompareFunctionLess;
-        depthDesc.depthWriteEnabled = YES;
-        _depthState = [self.device newDepthStencilStateWithDescriptor:depthDesc];
-
-        // Create vertex descriptor.
-        MTLVertexDescriptor *vertDesc = [MTLVertexDescriptor new];
-        vertDesc.attributes[VertexAttributePosition].format = MTLVertexFormatFloat3;
-        vertDesc.attributes[VertexAttributePosition].offset = 0;
-        vertDesc.attributes[VertexAttributePosition].bufferIndex = MeshVertexBuffer;
-        vertDesc.attributes[VertexAttributeColor].format = MTLVertexFormatUChar4;
-        vertDesc.attributes[VertexAttributeColor].offset = member_size(Vertex, position);
-        vertDesc.attributes[VertexAttributeColor].bufferIndex = MeshVertexBuffer;
-        vertDesc.layouts[MeshVertexBuffer].stride = sizeof(Vertex);
-        vertDesc.layouts[MeshVertexBuffer].stepRate = 1;
-        vertDesc.layouts[MeshVertexBuffer].stepFunction = MTLVertexStepFunctionPerVertex;
-
-        MTLRenderPipelineDescriptor *pipelineDesc = [MTLRenderPipelineDescriptor new];
-        pipelineDesc.sampleCount = self.sampleCount;
-        pipelineDesc.vertexFunction = vertFunc;
-        pipelineDesc.fragmentFunction = fragFunc;
-        pipelineDesc.vertexDescriptor = vertDesc;
-        pipelineDesc.colorAttachments[0].pixelFormat = self.metalView.colorPixelFormat;
-        pipelineDesc.depthAttachmentPixelFormat = self.metalView.depthStencilPixelFormat;
-        pipelineDesc.stencilAttachmentPixelFormat = self.metalView.depthStencilPixelFormat;
-
-        _pipelineState = [self.device newRenderPipelineStateWithDescriptor:pipelineDesc error:&error];
-
-        if (!_pipelineState) {
-            NSLog(@"Failed to create pipeline state, error %@", error);
-            exit(0);
-        }
+//        NSError *error = nil;
+//
+//        NSString *source = [NSString stringWithCString:defaultSource encoding:NSUTF8StringEncoding];
+////        NSLog(@"Metal library source: %@", source);
+//        
+//        _library = [self.device newLibraryWithSource:source options:0 error:&error];
+//        if (!_library) {
+//            NSLog(@"Failed to load library. error %@", error);
+//            exit(0);
+//        }
+//        id <MTLFunction> vertFunc = [_library newFunctionWithName:@"vert"];
+//        id <MTLFunction> fragFunc = [_library newFunctionWithName:@"frag"];
+//
+//        // Create depth state.
+//        MTLDepthStencilDescriptor *depthDesc = [MTLDepthStencilDescriptor new];
+//        depthDesc.depthCompareFunction = MTLCompareFunctionLess;
+//        depthDesc.depthWriteEnabled = YES;
+//        _depthState = [self.device newDepthStencilStateWithDescriptor:depthDesc];
+//
+//        // Create vertex descriptor.
+//        MTLVertexDescriptor *vertDesc = [MTLVertexDescriptor new];
+//        vertDesc.attributes[VertexAttributePosition].format = MTLVertexFormatFloat3;
+//        vertDesc.attributes[VertexAttributePosition].offset = 0;
+//        vertDesc.attributes[VertexAttributePosition].bufferIndex = MeshVertexBuffer;
+//        vertDesc.attributes[VertexAttributeColor].format = MTLVertexFormatUChar4;
+//        vertDesc.attributes[VertexAttributeColor].offset = member_size(Vertex, position);
+//        vertDesc.attributes[VertexAttributeColor].bufferIndex = MeshVertexBuffer;
+//        vertDesc.layouts[MeshVertexBuffer].stride = sizeof(Vertex);
+//        vertDesc.layouts[MeshVertexBuffer].stepRate = 1;
+//        vertDesc.layouts[MeshVertexBuffer].stepFunction = MTLVertexStepFunctionPerVertex;
+//
+//        MTLRenderPipelineDescriptor *pipelineDesc = [MTLRenderPipelineDescriptor new];
+//        pipelineDesc.sampleCount = self.sampleCount;
+//        pipelineDesc.vertexFunction = vertFunc;
+//        pipelineDesc.fragmentFunction = fragFunc;
+//        pipelineDesc.vertexDescriptor = vertDesc;
+//        pipelineDesc.colorAttachments[0].pixelFormat = self.metalView.colorPixelFormat;
+//        pipelineDesc.depthAttachmentPixelFormat = self.metalView.depthStencilPixelFormat;
+//        pipelineDesc.stencilAttachmentPixelFormat = self.metalView.depthStencilPixelFormat;
+//
+//        _pipelineState = [self.device newRenderPipelineStateWithDescriptor:pipelineDesc error:&error];
+//
+//        if (!_pipelineState) {
+//            NSLog(@"Failed to create pipeline state, error %@", error);
+//            exit(0);
+//        }
     }
     return self;
 }
@@ -287,6 +288,7 @@ typedef struct {
 }
 
 -(void)present {
+    hl_fatal_error("incorrect present", __FILE__, __LINE__);
     // Wait for an available uniform buffer.
     dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
 

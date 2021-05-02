@@ -5,11 +5,15 @@
 **/
 package metal;
 
+import metal.MTLRenderPassDepthAttachmentDescriptor;
+
 @:structInit
 @:keep
 class MTLRenderPassDescriptor
 {
     public var colorAttachments = new hl.NativeArray<MTLRenderPassColorAttachmentDescriptor>(0);
+    public var depthAttachment: MTLRenderPassDepthAttachmentDescriptor = null;
+    public var stencilAttachment: MTLRenderPassStencilAttachmentDescriptor = null;
 
     public function new() {
 

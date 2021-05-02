@@ -1,6 +1,4 @@
-#import <Cocoa/Cocoa.h>
-#import <Metal/Metal.h>
-#import <MetalKit/MetalKit.h>
+#import "_SharedRoot.h"
 
 typedef struct {
 	int x;

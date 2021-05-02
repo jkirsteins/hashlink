@@ -2,6 +2,20 @@
 #import "MTLBuffer.h"
 #import "MTLRenderPipelineState.h"
 
+typedef struct s_input {
+    Float32 positionX;
+    Float32 positionY;
+    
+    Float32 u;
+    Float32 v;
+    
+    Float32 color1;
+    Float32 color2;
+    Float32 color3;
+    Float32 color4;
+} s_input;
+
+
 HL_PRIM void HL_NAME(mtlrendercommandencoder_setVertexBuffer_offset_index)(
                                                                            id<MTLRenderCommandEncoder> encoder,
                                                                            id<MTLBuffer> buffer,
@@ -9,6 +23,14 @@ HL_PRIM void HL_NAME(mtlrendercommandencoder_setVertexBuffer_offset_index)(
                                                                            int32_t index) {
     DEBUG_NSLOG(@"mtlrendercommandencoder_setVertexBuffer_offset_index: start");
 
+    NSData *d = [NSData dataWithBytes:buffer.contents length:buffer.length];
+    DEBUG_NSLOG(@"Buffer (offset %d; length %lu; index %d) contents: %@", offset, buffer.length, index, d.debugDescription)
+    
+    s_input *vertices = (s_input*)buffer.contents;
+    for (int i = 0; i < 4; ++i) {
+        NSLog(@"%d: %f %f", i, vertices[i].positionX, vertices[i].positionY);
+    }
+    
     [encoder setVertexBuffer:buffer offset:offset atIndex:index];
     
     DEBUG_NSLOG(@"mtlrendercommandencoder_setVertexBuffer_offset_index: end");
@@ -37,6 +59,22 @@ HL_PRIM void HL_NAME(mtlrendercommandencoder_drawIndexedPrimitives_indexCount_in
                                                                                                                                                              int32_t baseInstance) {
     DEBUG_NSLOG(@"mtlrendercommandencoder_drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_instanceCount_baseVertex_baseInstance: start");
 
+    NSData *d = [NSData dataWithBytes:indexBuffer.contents length:indexBuffer.length];
+    
+    DEBUG_NSLOG(@"Primitive type: %lu", (MTLPrimitiveType)primitiveType);
+    DEBUG_NSLOG(@"Index count: %d", indexCount);
+    DEBUG_NSLOG(@"Index type: %lu", (MTLIndexType)indexType);
+    DEBUG_NSLOG(@"Index buffer (length %lu): %@", indexBuffer.length, d.description);
+    DEBUG_NSLOG(@"Index offset: %d", indexBufferOffset);
+    DEBUG_NSLOG(@"Instance count: %d", instanceCount);
+    DEBUG_NSLOG(@"Base vertex: %d", baseVertex);
+    DEBUG_NSLOG(@"Base instance: %d", baseInstance);
+    
+//    for (int i = 0; i < instanceCount*3; ++i) {
+//        uint16_t index = ((uint16_t*)indexBuffer.contents)[i];
+//        DEBUG_NSLOG(@"index[%d]: %d", i, index);
+//    }
+    
     [encoder drawIndexedPrimitives:primitiveType
                         indexCount:indexCount
                          indexType:indexType
@@ -61,6 +99,7 @@ HL_PRIM void HL_NAME(mtlrendercommandencoder_endEncoding)(id<MTLRenderCommandEnc
 HL_PRIM void HL_NAME(mtlrendercommandencoder_release)(id<MTLRenderCommandEncoder> rce) {
     DEBUG_NSLOG(@"mtlrendercommandencoder_release: start with %@", rce);
     
+    //hl_fatal_error("stopping mtlrendercom", __FILE__, __LINE__);
     [rce release];
 
     DEBUG_NSLOG(@"mtlrendercommandencoder_release: end");

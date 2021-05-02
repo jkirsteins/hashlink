@@ -23,13 +23,11 @@ HL_PRIM id<MTLCommandQueue> HL_NAME(mtldevice_newCommandQueue)(id<MTLDevice> dev
 HL_PRIM id<MTLRenderPipelineState> HL_NAME(mtldevice_newRenderPipelineState_descriptor)(id<MTLDevice> device, Proxy_MTLTextureDescriptor *proxyDesc) {
     NSLog(@"mtldevice_newRenderPipelineState_descriptor");
 
-    NSLog(@"Vertex: %@", proxyDesc->vertexFunction->function);
-    NSLog(@"Fragment: %@", proxyDesc->fragmentFunction->function);
-
     MTLRenderPipelineDescriptor *desc = [MTLRenderPipelineDescriptor new];
     desc.vertexFunction = proxyDesc->vertexFunction->function;
     desc.fragmentFunction = proxyDesc->fragmentFunction->function;
-
+    desc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+    
     NSError *error;
     id<MTLRenderPipelineState> result = [device newRenderPipelineStateWithDescriptor:desc error:&error];
 
@@ -38,15 +36,14 @@ HL_PRIM id<MTLRenderPipelineState> HL_NAME(mtldevice_newRenderPipelineState_desc
         exit(1);
     }
 
-    NSLog(@"Created MTLRenderPipelineState %@", result);
+    DEBUG_NSLOG(@"Created MTLRenderPipelineState %@", result);
     return result;
 }
 
 HL_PRIM id<MTLLibrary> HL_NAME(mtldevice_newLibrary_source)(id<MTLDevice> device, vbyte *source) {
-    NSLog(@"mtldevice_newLibrary_source");
+    DEBUG_NSLOG(@"mtldevice_newLibrary_source");
 
     NSString *nsSource = [NSString stringWithUTF8String:(char*)source];
-    NSLog(@"Source: %@", nsSource);
 
     NSError *error;
     id<MTLLibrary> result = [device newLibraryWithSource:nsSource options:0 error:&error];
@@ -56,15 +53,18 @@ HL_PRIM id<MTLLibrary> HL_NAME(mtldevice_newLibrary_source)(id<MTLDevice> device
         exit(1);
     }
 
-    NSLog(@"Created library %@", result);
+    DEBUG_NSLOG(@"Created library %@", result);
     return result;
 }
 
 HL_PRIM id<MTLBuffer> HL_NAME(mtldevice_newBuffer_length_options)(id<MTLDevice> device, int32_t length, int32_t options) {
-    NSLog(@"mtldevice_newBuffer_length_options");
+    DEBUG_NSLOG(@"mtldevice_newBuffer_length_options: start");
+    DEBUG_NSLOG(@"length: %d", length);
 
-    return [device newBufferWithLength:(NSUInteger)length
+    id<MTLBuffer> res = [device newBufferWithLength:(NSUInteger)length
                             options:options];
+    DEBUG_NSLOG(@"mtldevice_newBuffer_length_options: end");
+    return res;
 }
 
 DEFINE_PRIM(_MTL_BUFFER,mtldevice_newBuffer_length_options,_MTL_DEVICE _I32 _I32);

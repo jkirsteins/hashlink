@@ -12,9 +12,6 @@
 //  appreciated but not required.
 //
 
-#define HL_NAME(n) metal_##n
-
-#include <hl.h>
 #import "MetalApplication.h"
 #import "MetalWindow.h"
 #import "MetalView.h"
@@ -131,8 +128,6 @@ DEFINE_PRIM(_BOOL,nsapp_init,_NO_ARG);
 			*/
 
 		while (true) {
-			 NSLog(@"Waiting for the next event...");
-			// NSLog(@"(window count: %lu)", NSApp.windows.count);
 
             if (NSApp.windows.count == 0) {
                 event->type = Quit;
@@ -150,7 +145,55 @@ DEFINE_PRIM(_BOOL,nsapp_init,_NO_ARG);
                 break;
             }
             
-            NSLog(@"Returning an event...");
+            [self sendEvent:nsEvent];
+            [self updateWindows];
+            
+            switch (nsEvent.type) {
+                case NSEventTypeMouseMoved:
+                    event->type = MouseMove;
+                    return true;
+                case NSEventTypeLeftMouseDown:
+                    event->type = MouseDown;
+                case NSEventTypeRightMouseDown:
+                    event->type = MouseDown;
+                case NSEventTypeLeftMouseUp:
+                    event->type = MouseUp;
+                case NSEventTypeRightMouseUp:
+                    event->type = MouseUp;
+                    return true;
+                case NSEventTypeMouseExited:
+                    event->type = MouseLeave;
+                    return true;
+                case NSEventTypeScrollWheel:
+                    event->type = MouseWheel;
+                    return true;
+                case NSEventTypeKeyDown:
+                    event->type = KeyDown;
+                    return true;
+                case NSEventTypeKeyUp:
+                    event->type = KeyUp;
+                    return true;
+                case NSEventTypeLeftMouseDragged:
+                case NSEventTypeRightMouseDragged:
+                case NSEventTypeOtherMouseDragged:
+                    event->type = MouseMove;
+                    return true;
+                case NSEventTypePressure:
+                    continue;
+                case NSEventTypeMouseEntered:
+                    continue;
+                case NSEventTypeAppKitDefined:
+                    continue;
+                case NSEventTypeSystemDefined:
+                    continue;
+                case NSEventTypeFlagsChanged:
+                    continue;
+                default:
+                    NSLog(@"Unknown event %@...", nsEvent);
+                    NSLog(@"Debug desc %@...", nsEvent.debugDescription);
+                    hl_fatal_error("unknown event", __FILE__, __LINE__);
+            }
+            
             event->type = 1337; // tmp to not force a quit
 
 			long subtype = -1;
@@ -165,9 +208,7 @@ DEFINE_PRIM(_BOOL,nsapp_init,_NO_ARG);
 
 			// NSLog(@"NSEvent with type: %ld and subtype: %ld", event.type, subtype);
 
-			[self sendEvent:nsEvent];
-			[self updateWindows];
-            return true;
+			return true;
 		}
 
 		return false;
