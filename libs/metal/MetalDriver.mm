@@ -15,6 +15,8 @@
 #define _DRIVER _ABSTRACT(metal_driver)
 #define _METAL_BUFFER _ABSTRACT(id_mtl_buffer)
 
+extern MTKView *RootView;
+
 typedef struct Proxy_MTLTextureDescriptor {
 public:
     hl_type *t;
@@ -37,71 +39,18 @@ public:
 //    public var swizzle: MTLTextureSwizzleChannels;
 } Proxy_MTLTextureDescriptor;
 
-char const *defaultSource = "#include <simd/simd.h>\n"
-"\n"
-"#ifndef COMMON_H\n"
-"#define COMMON_H\n"
-"\n"
-"#include <simd/simd.h>\n"
-"\n"
-"enum VertexAttributes {\n"
-"    VertexAttributePosition = 0,\n"
-"    VertexAttributeColor = 1,\n"
-"};\n"
-"\n"
-"enum BufferIndex  {\n"
-"    MeshVertexBuffer = 0,\n"
-"    FrameUniformBuffer = 1,\n"
-"};\n"
-"\n"
-"struct FrameUniforms {\n"
-"    simd::float4x4 projectionViewModel;\n"
-"};\n"
-"\n"
-"#endif\n"
-"\n"
-"using namespace metal;\n"
-"\n"
-"struct VertexInput {\n"
-"    float3 position [[attribute(VertexAttributePosition)]];\n"
-"    half4 color [[attribute(VertexAttributeColor)]];\n"
-"};\n"
-"\n"
-"struct ShaderInOut {\n"
-"    float4 position [[position]];\n"
-"    half4  color;\n"
-"};\n"
-"\n"
-"vertex ShaderInOut vert(VertexInput in [[stage_in]],\n"
-"\t   constant FrameUniforms& uniforms [[buffer(FrameUniformBuffer)]]) {\n"
-"    ShaderInOut out;\n"
-"    float4 pos4 = float4(in.position, 1.0);\n"
-"    out.position = uniforms.projectionViewModel * pos4;\n"
-"    out.color = in.color / 255.0;\n"
-"    return out;\n"
-"}\n"
-"\n"
-"fragment half4 frag(ShaderInOut in [[stage_in]]) {\n"
-"    return in.color;\n"
-"}\n"
-"";
-
 HL_PRIM MetalDriver* HL_NAME(driver_create)(MetalWindow* win) {
-	@autoreleasepool {
-		NSLog(@"Creating driver");
-        NSLog(@"_MTLResourceStorageModeShared_ %lu", MTLResourceStorageModeShared);
-        return [[MetalDriver alloc] initWithWindow:win];
-	}
+	 NSLog(@"Creating driver");
+    NSLog(@"_MTLResourceStorageModeShared_ %lu", MTLResourceStorageModeShared);
+    return [[MetalDriver alloc] initWithWindow:win];
 }
 
 HL_PRIM id<MTLBuffer> HL_NAME(driver_create_buffer)(MetalDriver* driver, int32_t length) {
-    @autoreleasepool {
-        NSLog(@"Creating buffer");
+    NSLog(@"Creating buffer");
 
-        id<MTLDevice> dev = driver.device;
-        return [dev newBufferWithLength:(NSUInteger)length
-                                options:0];
-    }
+    id<MTLDevice> dev = driver.device;
+    return [dev newBufferWithLength:(NSUInteger)length
+                            options:0];
 }
 
 HL_PRIM void HL_NAME(driver_resize_viewport)(MetalDriver* driver, int32_t width, int32_t height) {
@@ -127,22 +76,26 @@ HL_PRIM void HL_NAME(driver_set_depth_stencil_format)(MetalDriver* driver, int32
 }
 
 HL_PRIM id<MTLTexture> HL_NAME(driver_create_texture)(MetalDriver* driver, Proxy_MTLTextureDescriptor *proxyDescriptor) {
-    @autoreleasepool {
-        NSLog(@"Creating a texture");
-        NSLog(@"Texture descriptor: %d x %d (%d) (%lu)",
-              proxyDescriptor->width,
-              proxyDescriptor->height,
-              proxyDescriptor->pixelFormat,
-              ((MTLPixelFormat)proxyDescriptor->pixelFormat));
+    DEBUG_NSLOG(@"driver_create_texture: start");
+    
+    MTLTextureDescriptor *textureDescriptor = [MTLTextureDescriptor new];
 
-        MTLTextureDescriptor *textureDescriptor = [MTLTextureDescriptor new];
-
-        textureDescriptor.pixelFormat = (MTLPixelFormat)proxyDescriptor->pixelFormat;
-        textureDescriptor.width = proxyDescriptor->width;
-        textureDescriptor.height = proxyDescriptor->height;
-
-        return [driver.device newTextureWithDescriptor:textureDescriptor];
-    }
+    textureDescriptor.pixelFormat = (MTLPixelFormat)proxyDescriptor->pixelFormat;
+    textureDescriptor.width = proxyDescriptor->width;
+    textureDescriptor.height = proxyDescriptor->height;
+    
+    DEBUG_NSLOG(@"size: %lu %lu", textureDescriptor.width, textureDescriptor.height);
+    DEBUG_NSLOG(@"pixel format: %lu", textureDescriptor.pixelFormat);
+    
+    DEBUG_NSLOG(@"usage: %lu", textureDescriptor.usage);
+    
+    id<MTLTexture> res = [driver.device newTextureWithDescriptor:textureDescriptor];
+    [textureDescriptor release];
+    
+    DEBUG_NSLOG(@"texture: %@", res);
+    DEBUG_NSLOG(@"driver_create_texture: end");
+    
+    return res;
 }
 
 
@@ -160,6 +113,25 @@ HL_PRIM id<CAMetalDrawable> HL_NAME(driver_get_current_drawable)(MetalDriver* dr
     }
 }
 
+HL_PRIM double HL_NAME(driver_get_contents_scale)(MetalDriver* driver) {
+    @autoreleasepool {
+        DEBUG_NSLOG(@"driver_get_contents_scale: start");
+        
+        // NOTE: driver.metalView.layer.contentsScale will stay unchanged
+        // depending on the screen on which the app starts, so don't use it
+        
+//        on iOS:
+//        scaleFactor = [[UIScreen mainScreen] scale];
+//        [m_metalLayer setContentScaleFactor: scaleFactor];
+        
+        CGFloat f = [[NSScreen mainScreen] backingScaleFactor];
+        DEBUG_NSLOG(@"contents scale: %f", f);
+        
+        DEBUG_NSLOG(@"driver_get_contents_scale: end");
+        return f;
+    }
+}
+
 DEFINE_PRIM(_DRIVER,driver_create,_WINPTR);
 DEFINE_PRIM(_METAL_BUFFER,driver_create_buffer,_DRIVER _I32);
 DEFINE_PRIM(_VOID,driver_resize_viewport,_DRIVER _I32 _I32);
@@ -167,6 +139,7 @@ DEFINE_PRIM(_VOID,driver_set_depth_stencil_format,_DRIVER _I32);
 DEFINE_PRIM(_MTL_TEXTURE,driver_create_texture,_DRIVER _DYN);
 DEFINE_PRIM(_MTL_DEVICE,driver_get_device,_DRIVER);
 DEFINE_PRIM(_CA_METAL_DRAWABLE,driver_get_current_drawable,_DRIVER);
+DEFINE_PRIM(_F64,driver_get_contents_scale,_DRIVER);
 
 @implementation MetalDriver
 {

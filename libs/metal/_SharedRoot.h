@@ -5,6 +5,8 @@
 #import <QuartzCore/QuartzCore.h>
 
 
+#define FATAL(msg) hl_fatal_error(msg, __FILE__, __LINE__)
+
 #define DEBUG 1
 
 #ifdef DEBUG
@@ -17,6 +19,16 @@
 #define DEBUG_NSLOG2(...) ;
 
 #endif
+
+typedef struct Proxy_MTLViewport {
+    hl_type * _;
+    double originX;
+    double originY;
+    double width;
+    double height;
+    double znear;
+    double zfar;
+} Proxy_MTLViewport;
 
 typedef struct Proxy_MTLOrigin {
     hl_type * _;

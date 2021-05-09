@@ -24,6 +24,14 @@ class MTLRenderCommandEncoder extends MetalResource<MTLRenderCommandEncoderPtr> 
         );
     }
 
+    public function setFragmentTextureAtIndex(tex: MTLTexture, index: Int) {
+        nativeSetFragmentTextureAtIndex(
+            ptr,
+            @:privateAccess tex.ptr,
+            index
+        );
+    }
+
     public function drawIndexedPrimitives(
         primitiveType: MTLPrimitiveType,
         indexCount: Int,
@@ -53,6 +61,21 @@ class MTLRenderCommandEncoder extends MetalResource<MTLRenderCommandEncoderPtr> 
 
     public function release() {
         nativeRelease( ptr );
+    }
+
+    public function setViewport(viewport: MTLViewport) {
+        nativeSetViewport( ptr, viewport );
+    }
+
+    @:hlNative("metal", "mtlrendercommandencoder_setFragmentTexture_index")
+    private static function nativeSetFragmentTextureAtIndex(
+        ptr: MTLRenderCommandEncoderPtr,
+        texPtr: MTLTexturePtr,
+        index: Int ) {
+    }
+
+    @:hlNative("metal", "mtlrendercommandencoder_setViewport_viewport")
+    private static function nativeSetViewport( ptr: MTLRenderCommandEncoderPtr, viewport: Dynamic ) {
     }
 
     @:hlNative("metal", "mtlrendercommandencoder_release")

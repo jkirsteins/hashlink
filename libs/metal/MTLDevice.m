@@ -1,8 +1,11 @@
 #import "MTLDevice.h"
 #import "MTLLibrary.h"
 #import "MTLRenderPipelineState.h"
+#import <MetalKit/MetalKit.h>
 
 #define _MTL_COMMAND_QUEUE _ABSTRACT(id_mtl_command_queue)
+
+extern MTKView *RootView;
 
 typedef struct Proxy_MTLFunction {
     hl_type *t;
@@ -21,12 +24,19 @@ HL_PRIM id<MTLCommandQueue> HL_NAME(mtldevice_newCommandQueue)(id<MTLDevice> dev
 }
 
 HL_PRIM id<MTLRenderPipelineState> HL_NAME(mtldevice_newRenderPipelineState_descriptor)(id<MTLDevice> device, Proxy_MTLTextureDescriptor *proxyDesc) {
-    NSLog(@"mtldevice_newRenderPipelineState_descriptor");
+    DEBUG_NSLOG(@"mtldevice_newRenderPipelineState_descriptor: start");
 
     MTLRenderPipelineDescriptor *desc = [MTLRenderPipelineDescriptor new];
     desc.vertexFunction = proxyDesc->vertexFunction->function;
     desc.fragmentFunction = proxyDesc->fragmentFunction->function;
     desc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+    
+    DEBUG_NSLOG(@"descriptor color format: %lu", desc.colorAttachments[0].pixelFormat);
+    DEBUG_NSLOG(@"view color format: %lu", RootView.colorPixelFormat);
+    
+    if (desc.colorAttachments[0].pixelFormat != RootView.colorPixelFormat) {
+        FATAL("pixel format in pipeline state must match view");
+    }
     
     NSError *error;
     id<MTLRenderPipelineState> result = [device newRenderPipelineStateWithDescriptor:desc error:&error];
@@ -37,6 +47,8 @@ HL_PRIM id<MTLRenderPipelineState> HL_NAME(mtldevice_newRenderPipelineState_desc
     }
 
     DEBUG_NSLOG(@"Created MTLRenderPipelineState %@", result);
+    
+    DEBUG_NSLOG(@"mtldevice_newRenderPipelineState_descriptor: end");
     return result;
 }
 

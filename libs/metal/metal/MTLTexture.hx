@@ -17,8 +17,18 @@ class MTLTexture {
         nativeReplace(ptr, region, mipmapLevel, bytes, bytesPerRow);
     }
 
+    public function debugSave(path: String)
+    {
+        nativeDebugSave(ptr, @:privateAccess path.toUtf8());
+    }
+
     @:hlNative("metal","mtltexture_replace_region_mipmapLevel_bytes_bytesPerRow")
     private static function nativeReplace(ptr: MTLTexturePtr, region: Dynamic, mipmapLevel: Int, bytes: hl.Bytes, bytesPerRow: Int)
+    {
+    }
+
+    @:hlNative("metal","mtltexture_debug_save")
+    private static function nativeDebugSave(ptr: MTLTexturePtr, path: hl.Bytes)
     {
     }
 }

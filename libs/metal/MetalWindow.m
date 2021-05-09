@@ -5,6 +5,8 @@
 #import "MetalView.h"
 #import "MetalApplication.h"
 
+MTKView *RootView;
+
 
 @implementation MetalWindow
 
@@ -55,6 +57,8 @@ HL_PRIM MetalWindow* HL_NAME(window_create)(vbyte *title, int width, int height)
 
     NSLog(@"Making window key and front");
     [window makeKeyAndOrderFront:nil];
+    
+    RootView = view;
 
     return window;
 }

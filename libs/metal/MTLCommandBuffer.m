@@ -54,6 +54,8 @@ HL_PRIM id<MTLRenderCommandEncoder> HL_NAME(mtlcommandbuffer_renderCommandEncode
     id<MTLRenderCommandEncoder> encoder = [buffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
     DEBUG_NSLOG(@"mtlcommandbuffer_renderCommandEncoder_descriptor: returning encoder %@", encoder);
     
+    [encoder setCullMode:MTLCullModeNone];
+    
     return encoder;
 }
 

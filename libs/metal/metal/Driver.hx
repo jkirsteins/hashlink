@@ -45,6 +45,10 @@ class Driver {
         return new MTLTexture(nativeCreateTexture( driver, descriptor ));
     }
 
+    public function getContentsScale(): Float {
+        return nativeGetContentsScale( driver );
+    }
+
     public function getCurrentDrawable(): CAMetalDrawable {
         var drawablePtr = Driver.nativeGetCurrentDrawable( driver );
         if (drawablePtr == null) {
@@ -56,6 +60,11 @@ class Driver {
     @:hlNative("metal","driver_get_current_drawable")
     static function nativeGetCurrentDrawable( driver: DriverInstance ): CAMetalDrawablePtr {
         return null;
+    }
+
+    @:hlNative("metal","driver_get_contents_scale")
+    static function nativeGetContentsScale( driver: DriverInstance ): Float {
+        return 0;
     }
 
     @:hlNative("metal","driver_create_texture")
